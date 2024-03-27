@@ -142,7 +142,10 @@ HTML_CONTENT = '''
       <label for="numSamples">Number of initial samples:</label>
       <input type="number" id="numSamples" name="numSamples">
     </div>
-
+    <div>
+      <label for="numBatch">Number of samples per batch:</label>
+      <input type="number" id="numBatch" name="numBatch">
+    </div>
     <div>
       <input type="checkbox" id="flexiblePrompt" name="flexiblePrompt">
       <label for="flexiblePrompt">Enable flexible prompt setup across iterations</label>
@@ -156,8 +159,10 @@ HTML_CONTENT = '''
 
 </div>
 <script>
-function nextIteration() {
+let iterationCounter = 0;
 
+function nextIteration() {
+  
   let valid = true;
 
     // Check for non-empty values in text inputs and textareas within the parameters box
@@ -185,13 +190,17 @@ function nextIteration() {
     if (!valid) {
         return; // Stop the function if validation failed
     }
+  
+  iterationCounter++; // Increment the counter
 
   const formData = {
     promptInput: document.getElementById('promptInput').value,
     inputBounds: document.getElementById('inputBounds').value,
     numSamples: document.getElementById('numSamples').value,
+    numBatch: document.getElementById('numBatch').value,
     flexiblePrompt: document.getElementById('flexiblePrompt').checked,
-    pairwiseComparison: document.getElementById('pairwiseComparison').checked
+    pairwiseComparison: document.getElementById('pairwiseComparison').checked,
+    iterationCount: iterationCounter, 
   };
 
   const jsonString = JSON.stringify(formData);
@@ -275,22 +284,23 @@ def plot_gp_mean(model, bounds, resolution=100):
 #plt.scatter(frames_x[frame][:, 0], frames_x[frame][:, 1], color="red")
 #plt.title(f"Iteration {frame+1}")
 def botorch_process(d):
-  #if d==0:
   dim=int(d["inputBounds"])
   N=int(d["numSamples"])
-  sobol_engine = SobolEngine(dimension=dim, scramble=False)  # 2 dimensions for your input space
-  train_x = draw_sobol_samples(bounds=bounds, n=1, q=N).squeeze(0)
-  train_y=branin(train_x, negate=True).unsqueeze(-1)
+  batch_size=int(d["numBatch"])
+  if d["iterationCount"]==1:
+    sobol_engine = SobolEngine(dimension=dim, scramble=False)  # 2 dimensions for your input space
+    train_x = draw_sobol_samples(bounds=bounds, n=1, q=N).squeeze(0)
+    train_y=branin(train_x, negate=True).unsqueeze(-1)
+    best_y=train_y.max()
+    #fit model
+    gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
+    mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
+    fit_gpytorch_model(mll)
 
-  #fit model
-  gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
-  mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-  fit_gpytorch_model(mll)
-
-  X1,X2,mean=plot_gp_mean(gp_model,bounds)
-  EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
+  
+    EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
     #optimisation of acquisition function
-  candidate, _ = optimize_acqf(
+    candidate, _ = optimize_acqf(
         acq_function=EI,
         bounds=bounds,
         q=batch_size,
@@ -299,13 +309,39 @@ def botorch_process(d):
         options={"dtype": dtype, "device": device}
     )
     
-  new_y = branin(train_x, negate=True).unsqueeze(-1)
-  train_x = torch.cat([train_x, candidate])
-  train_y = torch.cat([train_y, new_y])
+    new_y = branin(train_x, negate=True).unsqueeze(-1)
+    train_x = torch.cat([train_x, candidate])
+    train_y = torch.cat([train_y, new_y])
 
+    X1,X2,mean=plot_gp_mean(gp_model,bounds)
 
-  print(train_x)
-  return None
+    print(train_x)
+    return X1,X2,mean,best_y
+  else:
+    best_y=train_y.max()
+    gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
+    mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
+    fit_gpytorch_model(mll)
+
+  
+    EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
+    #optimisation of acquisition function
+    candidate, _ = optimize_acqf(
+        acq_function=EI,
+        bounds=bounds,
+        q=batch_size,
+        num_restarts=5,
+        raw_samples=20,
+        options={"dtype": dtype, "device": device}
+    )
+    
+    new_y = branin(train_x, negate=True).unsqueeze(-1)
+    train_x = torch.cat([train_x, candidate])
+    train_y = torch.cat([train_y, new_y])
+
+    X1,X2,mean=plot_gp_mean(gp_model,bounds)
+    return X1,X2,mean,best_y
+
 # Serve the HTML page at the root
 @server.route('/')
 def index():
