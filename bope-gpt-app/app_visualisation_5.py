@@ -8,6 +8,19 @@ from flask import request, render_template_string
 from flask_cors import CORS
 import ast
 import json
+import numpy as np
+
+# Constants for the Branin function
+a = 1
+b = 5.1 / (4*np.pi**2)
+c = 5 / np.pi
+d = 6
+e = 10
+f = 1 / (8*np.pi)
+
+# Define the Branin function
+def branin(x, y):
+    return a * (y - b*x**2 + c*x - d)**2 + e*(1-f)*np.cos(x) + e
 # Initialize Flask server
 server = flask.Flask(__name__)
 CORS(server)
@@ -217,38 +230,57 @@ def index():
 # Initialize the Dash app
 app = dash.Dash(__name__, server=server, routes_pathname_prefix='/dash/')
 
-# App layout (as before)
 app.layout = html.Div([
-    dcc.Graph(id='sine-wave-graph'),
-    html.Label('Frequency:'),
-    dcc.Slider(
-        id='frequency-slider',
-        min=1,
-        max=10,
-        value=2,
-        marks={i: str(i) for i in range(1, 11)},
-        step=0.1,
-    ),
+    html.Div([
+        dcc.Graph(id='branin-contour-plot-graph'),
+    ], style={'width': '50%', 'display': 'inline-block'}),
+    html.Div([
+        dcc.Graph(id='branin-surface-plot-graph'),
+    ], style={'width': '50%', 'display': 'inline-block'}),
+    dcc.Interval(
+    id="load_interval", 
+    n_intervals=0, 
+    max_intervals=0, #<-- only run once
+    interval=1
+),
+html.Span(
+    id="spanner",
+    style=dict(color="yellow") #<-- just so it's easy to see
+),
 ])
-
-# Callback to update the graph based on the slider input (as before)
+# Callback for the contour plot
 @app.callback(
-    Output('sine-wave-graph', 'figure'),
-    [Input('frequency-slider', 'value')]
+    Output('branin-contour-plot-graph', 'figure'),
+    [Input(component_id="load_interval", component_property="n_intervals"),]
 )
-def update_graph(frequency):
-    x_values = np.linspace(0, 10, 500)
-    y_values = np.sin(frequency * x_values)
-    figure = {
-        'data': [go.Scatter(x=x_values, y=y_values, mode='lines')],
-        'layout': go.Layout(
-            title='Dynamic Sine Wave',
-            xaxis={'title': 'X Value'},
-            yaxis={'title': 'Sin(X)'},
-        ),
-    }
+def update_contour_plot(load_interval):
+    x = np.linspace(-5, 10, 400)
+    y = np.linspace(0, 15, 400)
+    X, Y = np.meshgrid(x, y)
+    Z = branin(X, Y)
+    
+    figure = go.Figure(data=go.Contour(z=Z, x=x, y=y))
+    figure.update_layout(title='Branin Function Contour Plot',
+                         xaxis_title='X',
+                         yaxis_title='Y')
     return figure
 
+# Callback for the 3D surface plot
+@app.callback(
+    Output('branin-surface-plot-graph', 'figure'),
+    [Input(component_id="load_interval", component_property="n_intervals"),]
+)
+def update_surface_plot(load_interval):
+    x = np.linspace(-5, 10, 100)
+    y = np.linspace(0, 15, 100)
+    X, Y = np.meshgrid(x, y)
+    Z = branin(X, Y)
+    
+    figure = go.Figure(data=[go.Surface(z=Z, x=x, y=y)])
+    figure.update_layout(title='Branin Function 3D Surface Plot',
+                         scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z'),
+                         autosize=True)
+    return figure
 
 @server.route('/submit-json', methods=['POST'])
 def process_data():
