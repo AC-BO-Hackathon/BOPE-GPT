@@ -26,7 +26,7 @@ import pandas as pd
 from botorch.utils.sampling import draw_sobol_samples
 from torch.quasirandom import SobolEngine
 
-global train_x, train_y, mean, best_y, itera
+global best_y_list, itera_list, mean,train_x, train_y
 train_x = None
 train_y = None
 mean = None
@@ -279,23 +279,11 @@ resolution=100
 x1 = torch.linspace(bounds[0, 0], bounds[1, 0], resolution, dtype=dtype, device=device)
 x2 = torch.linspace(bounds[0, 1], bounds[1, 1], resolution, dtype=dtype, device=device)
 X1, X2 = torch.meshgrid(x1, x2)
+X1_num=X1.cpu().numpy()
+X2_num=X2.cpu().numpy()
 
-def plot_gp_mean(model, bounds, resolution=100):
-    #x1 = torch.linspace(bounds[0, 0], bounds[1, 0], resolution, dtype=dtype, device=device)
-    #x2 = torch.linspace(bounds[0, 1], bounds[1, 1], resolution, dtype=dtype, device=device)
-    #X1, X2 = torch.meshgrid(x1, x2)
-    grid = torch.stack([X1.flatten(), X2.flatten()], -1)
-    with torch.no_grad():
-        mean = model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
-    return mean #X1.cpu().numpy(), X2.cpu().numpy(),
-
-
-#cp = plt.contourf(X1, X2, mean, levels=50, cmap=cm.viridis)
-#plt.colorbar(cp)
-#plt.scatter(frames_x[frame][:, 0], frames_x[frame][:, 1], color="red")
-#plt.title(f"Iteration {frame+1}")
 def botorch_process(d):
-  global train_x, train_y, mean, best_y_list, itera_list
+  global train_x, train_y, best_y_list, itera_list, mean
   dim=int(d["inputBounds"])
   N=int(d["numSamples"])
   batch_size=int(d["numBatch"])
@@ -305,15 +293,21 @@ def botorch_process(d):
     sobol_engine = SobolEngine(dimension=dim, scramble=False)  # 2 dimensions for your input space
     train_x = draw_sobol_samples(bounds=bounds, n=1, q=N).squeeze(0)
     train_y=branin(train_x, negate=True).unsqueeze(-1)
+
+    print(train_x,train_y)
     best_y=train_y.max().cpu().numpy()
-    print(best_y)
     best_y_list.append(best_y)
     itera_list.append(itera)
-    print(itera_list)
+    #print(best_y_list,itera_list)
     #fit model
     gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
     mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
     fit_gpytorch_model(mll)
+    resolution=100
+    grid = torch.stack([X1.flatten(), X2.flatten()], -1)
+    with torch.no_grad():
+      mean = gp_model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
+      #print(mean)
 
   
     EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
@@ -330,15 +324,12 @@ def botorch_process(d):
     new_y = branin(train_x, negate=True).unsqueeze(-1)
     train_x = torch.cat([train_x, candidate])
     train_y = torch.cat([train_y, new_y])
-
-    mean=plot_gp_mean(gp_model,bounds)
-
-    
+    print(train_x,train_y)
   else:
     best_y=train_y.max().cpu().numpy()
     best_y_list.append(best_y)
     itera_list.append(itera)
-    print(itera_list)
+    print(best_y_list, itera_list)
     gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
     mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
     fit_gpytorch_model(mll)
@@ -359,7 +350,11 @@ def botorch_process(d):
     train_x = torch.cat([train_x, candidate])
     train_y = torch.cat([train_y, new_y])
 
-    mean=plot_gp_mean(gp_model,bounds)
+    resolution=100
+    grid = torch.stack([X1.flatten(), X2.flatten()], -1)
+    with torch.no_grad():
+      mean = gp_model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
+
 
   return None
 
@@ -395,13 +390,9 @@ html.Span(
     [Input(component_id="load_interval", component_property="n_intervals"),]
 )
 def update_contour_plot(load_interval):
-    #x = np.linspace(-5, 10, 400)
-    #y = np.linspace(0, 15, 400)
-    #X, Y = np.meshgrid(x, y)
-
-    #Z = branin_2(X, Y)
-    
-    figure = go.Figure(data=go.Contour(z=mean, x=X1, y=X2))
+    figure = go.Figure(data=go.Contour(z=mean, x=X1_num, y=X2_num))
+    figure.update_xaxes(range=[0, 1])  # Here, 0 is the minimum and 6 is the maximum value for x-axis
+    figure.update_yaxes(range=[0, 1])
     figure.update_layout(title='Branin Function Contour Plot',
                          xaxis_title='X',
                          yaxis_title='Y')
@@ -413,13 +404,9 @@ def update_contour_plot(load_interval):
     [Input(component_id="load_interval", component_property="n_intervals"),]
 )
 def update_surface_plot(load_interval):
-    x = np.linspace(-5, 10, 100)
-    y = np.linspace(0, 15, 100)
-    X, Y = np.meshgrid(x, y)
-    Z = branin_2(X,Y)
-    
-    figure = go.Figure(data=[go.Surface(z=Z, x=x, y=y)])
-    figure.update_layout(title='Branin Function 3D Surface Plot',
+    figure = go.Figure(data=go.Scatter(x=itera_list, y=best_y_list, mode='lines+markers'))
+
+    figure.update_layout(title='Best value',
                          scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z'),
                          autosize=True)
     return figure
