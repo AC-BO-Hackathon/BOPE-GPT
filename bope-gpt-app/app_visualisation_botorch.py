@@ -26,6 +26,13 @@ import pandas as pd
 from botorch.utils.sampling import draw_sobol_samples
 from torch.quasirandom import SobolEngine
 
+global train_x, train_y, mean, best_y, itera
+train_x = None
+train_y = None
+mean = None
+best_y_list = []
+itera_list = []
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 dtype = torch.float64
@@ -268,15 +275,19 @@ function nextIteration() {
 </body>
 </html>
 '''
+resolution=100
+x1 = torch.linspace(bounds[0, 0], bounds[1, 0], resolution, dtype=dtype, device=device)
+x2 = torch.linspace(bounds[0, 1], bounds[1, 1], resolution, dtype=dtype, device=device)
+X1, X2 = torch.meshgrid(x1, x2)
 
 def plot_gp_mean(model, bounds, resolution=100):
-    x1 = torch.linspace(bounds[0, 0], bounds[1, 0], resolution, dtype=dtype, device=device)
-    x2 = torch.linspace(bounds[0, 1], bounds[1, 1], resolution, dtype=dtype, device=device)
-    X1, X2 = torch.meshgrid(x1, x2)
+    #x1 = torch.linspace(bounds[0, 0], bounds[1, 0], resolution, dtype=dtype, device=device)
+    #x2 = torch.linspace(bounds[0, 1], bounds[1, 1], resolution, dtype=dtype, device=device)
+    #X1, X2 = torch.meshgrid(x1, x2)
     grid = torch.stack([X1.flatten(), X2.flatten()], -1)
     with torch.no_grad():
         mean = model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
-    return X1.cpu().numpy(), X2.cpu().numpy(), mean
+    return mean #X1.cpu().numpy(), X2.cpu().numpy(),
 
 
 #cp = plt.contourf(X1, X2, mean, levels=50, cmap=cm.viridis)
@@ -284,14 +295,21 @@ def plot_gp_mean(model, bounds, resolution=100):
 #plt.scatter(frames_x[frame][:, 0], frames_x[frame][:, 1], color="red")
 #plt.title(f"Iteration {frame+1}")
 def botorch_process(d):
+  global train_x, train_y, mean, best_y_list, itera_list
   dim=int(d["inputBounds"])
   N=int(d["numSamples"])
   batch_size=int(d["numBatch"])
-  if d["iterationCount"]==1:
+  itera=int(d["iterationCount"])
+  print(dim,N,batch_size,itera)
+  if itera==1:
     sobol_engine = SobolEngine(dimension=dim, scramble=False)  # 2 dimensions for your input space
     train_x = draw_sobol_samples(bounds=bounds, n=1, q=N).squeeze(0)
     train_y=branin(train_x, negate=True).unsqueeze(-1)
-    best_y=train_y.max()
+    best_y=train_y.max().cpu().numpy()
+    print(best_y)
+    best_y_list.append(best_y)
+    itera_list.append(itera)
+    print(itera_list)
     #fit model
     gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
     mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
@@ -313,12 +331,14 @@ def botorch_process(d):
     train_x = torch.cat([train_x, candidate])
     train_y = torch.cat([train_y, new_y])
 
-    X1,X2,mean=plot_gp_mean(gp_model,bounds)
+    mean=plot_gp_mean(gp_model,bounds)
 
-    print(train_x)
-    return X1,X2,mean,best_y
+    
   else:
-    best_y=train_y.max()
+    best_y=train_y.max().cpu().numpy()
+    best_y_list.append(best_y)
+    itera_list.append(itera)
+    print(itera_list)
     gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
     mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
     fit_gpytorch_model(mll)
@@ -339,8 +359,9 @@ def botorch_process(d):
     train_x = torch.cat([train_x, candidate])
     train_y = torch.cat([train_y, new_y])
 
-    X1,X2,mean=plot_gp_mean(gp_model,bounds)
-    return X1,X2,mean,best_y
+    mean=plot_gp_mean(gp_model,bounds)
+
+  return None
 
 # Serve the HTML page at the root
 @server.route('/')
@@ -374,12 +395,13 @@ html.Span(
     [Input(component_id="load_interval", component_property="n_intervals"),]
 )
 def update_contour_plot(load_interval):
-    x = np.linspace(-5, 10, 400)
-    y = np.linspace(0, 15, 400)
-    X, Y = np.meshgrid(x, y)
-    Z = branin_2(X, Y)
+    #x = np.linspace(-5, 10, 400)
+    #y = np.linspace(0, 15, 400)
+    #X, Y = np.meshgrid(x, y)
+
+    #Z = branin_2(X, Y)
     
-    figure = go.Figure(data=go.Contour(z=Z, x=x, y=y))
+    figure = go.Figure(data=go.Contour(z=mean, x=X1, y=X2))
     figure.update_layout(title='Branin Function Contour Plot',
                          xaxis_title='X',
                          yaxis_title='Y')
@@ -408,8 +430,6 @@ def process_data():
     raw_data = request.get_data(as_text=True)  # or use request.data for binary data
     print(raw_data)
     d = json.loads(raw_data)
-    N=int(d["inputBounds"])
-    print(N)
     botorch_process(d)
     return d
 
