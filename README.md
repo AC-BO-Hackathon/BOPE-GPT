@@ -32,9 +32,10 @@ Maximizing all of the four outputs is desirable for this process. However, in re
 
 When you have a ground truth available, classical single objective and multi-objective BO are your start points. These provide useful insight in the nature of each output,i.e, its range, monotonocity, correlations, etc., that are important when working afterwards with preferential Bayesian Optimization.  
 
-**Single-objective BO implementation**
+**Single-objective BO implementation** 
 
-We conducted single-objective BO implementation for four different outputs respectively. The model we use is the SingleTaskGP, and qExpectedImprovement is used as the acquisition function.
+We conducted [single-objective BO implementation](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/singleBO_plots.ipynb) for four different outputs respectively. The model we use is the SingleTaskGP, and qExpectedImprovement is used as the acquisition function.
+
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/56cfb4d7-57b5-4eba-834c-05f82c86a56a)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b16089d5-44f9-4b9c-b80c-1405d0a00ef7)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/cad54e7d-cd85-4d6f-824d-7b404d83a96d)
@@ -46,7 +47,7 @@ The sigle-objective BO works quite well, and all of the four outputs are close t
 
 **Multi-objective BO implementation**
 
-We saw that the single-objective BO work quite well when optimizing the four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
+We saw that the single-objective BO work quite well when optimizing the four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented [multi-objective BO](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/multiBO_plots.ipynb) to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/c28430e4-b81d-413b-9fe5-3e016a1bcc53)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
@@ -56,20 +57,20 @@ We saw that the single-objective BO work quite well when optimizing the four dif
 
 From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task, since it is often hard *in the field* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
 
-**Decision by a comparison function**
+**Decision by a comparison function** 
 
-We first used a comparison function to conduct the decision step and test the preference setting. The model we use here is PairwiseGP, and the acquisition function AnalyticExpectedUtilityOfBestOption (EUBO) can help us to find the best observed value under the preference setting.
+We first used a comparison function to conduct the decision step and [test the preference setting](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO.ipynb). The model we use here is PairwiseGP, and the acquisition function AnalyticExpectedUtilityOfBestOption (EUBO) can help us to find the best observed value under the preference setting.
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/86d8e3bc-b44f-4e19-baed-d8931e69c8ec)
 
 **Decision by an LLM & Comparison of different objective functions**
 
-Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo), so that the Pair
+Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo), so that the comparison by utility function can be replaced by the decision of an LLM.
 
 We explored different cases below:
 1. The four outputs are equally important, and we want to maximize all of them.
 2. We only want to maximize the CO conversion.
-3. The xx is considered as a negative output and we want to minimize it while maximizing the other three objectives.
+3. The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3).
 
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
