@@ -41,7 +41,7 @@ We conducted single-objective BO implementation for four different outputs respe
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/ab3397bf-5a47-4881-a8db-e5f5d6028a75)
 
 
-The sigle-objective BO works quite well, and all of the four outputs can reach 1 (the upper cound after normalization). A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
+The sigle-objective BO works quite well, and all of the four outputs are close to 1 (the upper cound after normalization) after optimization. A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
 
 *Multi-objective BO implementation*
 
