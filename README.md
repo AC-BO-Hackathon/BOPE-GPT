@@ -1,7 +1,7 @@
 # bope-gpt
 
 
-![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg) | ![cat](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/chemcat_small.jpg)
+![reactor](images/reactor_small.jpg) | ![cat](images/chemcat_small.jpg)
 
 **Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
 # The first steps
