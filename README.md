@@ -52,8 +52,6 @@ We saw that the single-objective BO work quite well when optimizing the four dif
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
 
 
-
-
 **Into the preference world**
 
 From the multi-object BO, we saw that the multi-objective optimization result could be a very hard task using the distance to the pareto front, because defining the utility function includes the trade-off. While it is often hard to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
