@@ -36,13 +36,17 @@ When you have a ground truth available, classical single objective and multi-obj
 
 We conducted [single-objective BO implementation](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/singleBO_plots.ipynb) for four different outputs respectively. The model we use is the SingleTaskGP, and qExpectedImprovement is used as the acquisition function.
 
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/56cfb4d7-57b5-4eba-834c-05f82c86a56a)
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b16089d5-44f9-4b9c-b80c-1405d0a00ef7)
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/cad54e7d-cd85-4d6f-824d-7b404d83a96d)
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/7e4ba968-58db-4fc7-bbca-1fd68629d694)
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/e7e3b8b7-f594-418b-90e0-90de3d86c49d)
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/048d73cf-ffb1-470f-98fa-e1c9116a0c80)
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/dc0e0e99-6c40-4147-a7b0-2fdb3b9f785b)
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/6e55f062-b1c0-4cdb-b13b-7801b4725b26)
 
 
-The sigle-objective BO works quite well, and all of the four outputs are close to 1 (the upper cound after normalization) after optimization. A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
+The sigle-objective BO works quite well, and all of the four outputs are close to 1 (the upper bound after normalization) after optimization. A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
 
 **Multi-objective BO implementation**
 
