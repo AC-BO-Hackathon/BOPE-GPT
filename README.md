@@ -24,10 +24,23 @@ The ground truth we use here is the Artifitial Neural Network model built from t
 
 We set the objective function as maximizing all of the four outputs. However, if in the reality some of the three products are considered as byproducts, we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
 
-*Single-objective BO
+*Single-objective BO implementation*
 
-*Multi-objective BO
+*Multi-objective BO implementation*
+We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/c28430e4-b81d-413b-9fe5-3e016a1bcc53)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
+
+
 
 **Into the preference world**
+From the multi-object BO, we saw that the multi-objective optimization result could be a very hard task using the distance to the pareto front, because it is very hard to define the objective. Therefrore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
+
+*Decision by a comparison function*
+We first used a comparison function to 
+
+*Decision by an LLM*
+Finally we turned to the pairwise comparison by LLM.
 
 **An app to rule them all**
