@@ -53,7 +53,7 @@ We first used a comparison function to conduct the decision step and test the pr
 
 *Decision by an LLM & Comparison of different objective functions*
 
-Finally we turned to the pairwise comparison by LLM.
+Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo)
 
 We explored different cases below:
 1. The four outputs are equally important, and we want to maximize all of them.
@@ -64,6 +64,6 @@ To understand how the process work behind the scenes, we can have a look to a sa
 
 `Suppose you're managing a Fischer-Tropsch synthesis process, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
 
-The numbers from the model output are entered to prompt as 
+The numbers from the model output are entered to prompt as strings with one decimal, to simplify the input and provide some fuzziness in the LLM decision (after prompt engineering, we realise that numbers with many decimals are not well intepreted by the free Cohere API LLM"
 
 **An app to rule them all**
