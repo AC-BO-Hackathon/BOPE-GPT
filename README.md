@@ -18,7 +18,7 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 # The first steps
 
-**Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective B0**
+**Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective BO**
 
 Fischer-Tropsch Synthesis represents a pivotal process in the field of industrial chemistry, serving as a cornerstone for the production of liquid hydrocarbons from carbon monoxide and hydrogen gases. Developed by German chemists Franz Fischer and Hans Tropsch in the early 1920s, this method provides a versatile pathway for converting syngas—a mixture of hydrogen and carbon monoxide derived from coal, biomass, or natural gas—into a variety of valuable hydrocarbon products, including fuels and alkanes. The process is particularly adopted for its ability to produce clean, sulfur-free fuels, which are crucial in today's efforts towards environmental sustainability and energy security. Through catalytic chemical reactions conducted at high temperatures and pressures, Fischer-Tropsch Synthesis offers a strategic approach to mitigating reliance on crude oil by leveraging alternative carbon sources, thereby playing a critical role in the evolving landscape of global energy.
 
@@ -40,7 +40,6 @@ We conducted [single-objective BO implementation](https://github.com/AC-BO-Hacka
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b16089d5-44f9-4b9c-b80c-1405d0a00ef7)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/cad54e7d-cd85-4d6f-824d-7b404d83a96d)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/7e4ba968-58db-4fc7-bbca-1fd68629d694)
-
 
 
 The sigle-objective BO works quite well, and all of the four outputs are close to 1 (the upper cound after normalization) after optimization. A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
@@ -67,7 +66,7 @@ We first used a comparison function to conduct the decision step and [test the p
 
 Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo), so that the comparison by utility function can be replaced by the decision of an LLM.
 
-We explored different cases below: ("" means prompt, [] indicates objective function, and we compare the performance of the two for the optimal values)
+We explored different cases below: ("" means prompt to the LLM, [] indicates objective utility function we tell the EUBO. And we compare the performance of the two results for the optimal values to see if LLM can replace numerical decision)
 1. "The four outputs are equally important, and we want to maximize all of them."
 [obj: maximize sum of y1-y4]
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/9127818f-dced-4d7a-a174-5526bbfea999)
@@ -79,6 +78,7 @@ We explored different cases below: ("" means prompt, [] indicates objective func
 3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
 [obj: maximize y1+y2+y3-y4]
 
+From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
 
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
