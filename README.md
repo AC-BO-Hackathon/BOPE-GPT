@@ -26,7 +26,7 @@ The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of 
 
 $$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
 
-The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F_{CO}), syngas ratio, temperature and pressure, and four outputs: carbon monoxide conversion, and the selectivity towards methane (SCH4), paraffins (SC2−C4) and light olefins (SC2−C4=).
+The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F_{CO}), syngas ratio, temperature and pressure, and four outputs: y1 for the carbon monoxide conversion, y2 as the selectivity towards methane (SCH4), y3 as the selectivity towards paraffins (SC2−C4) and y4 as the selectivity towards light olefins (SC2−C4=).
 
 Maximizing all of the four outputs is desirable for this process. However, in reality some of the three products are considered as byproducts, and the ones you care only achieve high selectivity under very intensive conditions, which are not feasible in technical terms or economical terms. Therefore,we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
 
@@ -35,10 +35,11 @@ When you have a ground truth available, classical single objective and multi-obj
 *Single-objective BO implementation*
 
 We conducted single-objective BO implementation for four different outputs respectively.
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/6d46f714-75af-42d6-acad-414dffc1a534)
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/3899f3ee-b218-45da-9f71-f1ba6067b041)
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/9693c9cf-c5b7-4f29-8ff7-95f1e71e4924)
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/ab3397bf-5a47-4881-a8db-e5f5d6028a75)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/56cfb4d7-57b5-4eba-834c-05f82c86a56a)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b16089d5-44f9-4b9c-b80c-1405d0a00ef7)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/cad54e7d-cd85-4d6f-824d-7b404d83a96d)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/7e4ba968-58db-4fc7-bbca-1fd68629d694)
+
 
 
 The sigle-objective BO works quite well, and all of the four outputs are close to 1 (the upper cound after normalization) after optimization. A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
