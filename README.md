@@ -14,6 +14,8 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 `pip install tensorflow`
 
+![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor.jpg)
+
 **The first steps**
 
 *Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective B0*
@@ -33,13 +35,21 @@ When you have a ground truth available, classical single objective and multi-obj
 *Single-objective BO implementation*
 
 We conducted single-objective BO implementation for four different outputs respectively.
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/6d46f714-75af-42d6-acad-414dffc1a534)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/3899f3ee-b218-45da-9f71-f1ba6067b041)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/9693c9cf-c5b7-4f29-8ff7-95f1e71e4924)
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/ab3397bf-5a47-4881-a8db-e5f5d6028a75)
+
+
+The sigle-objective BO works quite well, and all of the four outputs can reach 1 (the upper cound after normalization). A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
 
 *Multi-objective BO implementation*
 
-We saw that the single-objective BO work quite well when optimizing the  four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
+We saw that the single-objective BO work quite well when optimizing the four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/c28430e4-b81d-413b-9fe5-3e016a1bcc53)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
+
 
 
 
