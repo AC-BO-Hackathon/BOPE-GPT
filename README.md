@@ -24,7 +24,7 @@ The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of 
 
 $$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
 
-The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time, syngas ratio, temperature and pressure, and four outputs: carbon monoxide conversion, and the selectivity towards methane (SCH4), paraffins (SC2−C4) and light olefins (SC2−C4=).
+The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F_{CO}), syngas ratio, temperature and pressure, and four outputs: carbon monoxide conversion, and the selectivity towards methane (SCH4), paraffins (SC2−C4) and light olefins (SC2−C4=).
 
 We set the objective function as maximizing all of the four outputs. However, if in the reality some of the three products are considered as byproducts, we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
 
@@ -64,6 +64,6 @@ To understand how the process work behind the scenes, we can have a look to a sa
 
 `Suppose you're managing a Fischer-Tropsch synthesis process, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
 
-The numbers from the model output are entered to prompt as strings with one decimal, to simplify the input and provide some fuzziness in the LLM decision (after prompt engineering, we realise that numbers with many decimals are not well intepreted by the free Cohere API LLM"
+The numbers from the model output are entered to prompt as strings with one decimal, to simplify the input and provide some fuzziness in the LLM decision (after prompt engineering, we realise that numbers with many decimals are not well intepreted by the free Cohere API LLM)
 
 **An app to rule them all**
