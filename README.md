@@ -38,16 +38,16 @@ We conducted [single-objective BO implementation](https://github.com/AC-BO-Hacka
 
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/e7e3b8b7-f594-418b-90e0-90de3d86c49d)
-
+<br>
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/048d73cf-ffb1-470f-98fa-e1c9116a0c80)
-
+<br>
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/dc0e0e99-6c40-4147-a7b0-2fdb3b9f785b)
-
+<br>
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/45458783/6e55f062-b1c0-4cdb-b13b-7801b4725b26)
-
+<br>
 
 
 The single-objective BO works quite well, and all four outputs are close to 1 (the upper bound after normalization) following optimization. A problem arises because the optimal input conditions differ for each of the four outputs. Therefore, it is not possible to achieve the optimum for all four outputs simultaneously.
