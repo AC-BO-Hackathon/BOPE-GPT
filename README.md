@@ -81,13 +81,11 @@ We explored different cases below: ("" means prompt to the LLM, [] indicates obj
 
 2. "We only want to maximize the CO conversion."
 [obj: maximize y1]
-![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/02a2ad8b-a809-4aa4-93a0-4294ff63b4c6)
-
-
-
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b2d22afd-3d1e-42e3-946d-b53bd18bf257)
   
 3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
 [obj: maximize y1+y2+y3-y4]
+
 
 From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
 
