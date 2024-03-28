@@ -14,7 +14,7 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 `pip install tensorflow`
 
-![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg)
+![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg) | ![cat](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/chemcat_small.jpg)
 
 **The first steps**
 
@@ -50,8 +50,6 @@ We saw that the single-objective BO work quite well when optimizing the four dif
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/c28430e4-b81d-413b-9fe5-3e016a1bcc53)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
-
-
 
 
 **Into the preference world**
