@@ -14,7 +14,7 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 `pip install tensorflow`
 
-![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor.jpg)
+![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg)
 
 **The first steps**
 
