@@ -69,13 +69,13 @@ We explored different cases below: ("" means prompt to the LLM, [] indicates obj
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/65724c2f-7334-43c8-810a-8dc64d24f9fc)
 
 
-3. "We only want to maximize the CO conversion."
+2. "We only want to maximize the CO conversion."
 [obj: maximize y1]
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/4514e394-2443-4d4b-a88c-a5117238d50b)
 
   
-5. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
+3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
 [obj: maximize y1+y2+y3-y4]
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/1cee53bf-45a7-4081-922a-e493843ed422)
