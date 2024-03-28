@@ -337,6 +337,7 @@ def botorch_process(d):
   with torch.no_grad():
     mean = gp_model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
     mean_list.append(mean)
+    print(mean_list)
 
 
   return None
