@@ -1,18 +1,5 @@
 # bope-gpt
 
-To run the code, I'm typically updating a conda/mamba environment that, on the first time, can be installed using the following commands:
-
-`mamba create -n botorch_mar2024 pytorch torchvision torchaudio pytorch-cuda=11.8 python==3.11 -c pytorch -c nvidia`
-
-`mamba install botorch matplotlib seaborn -c pytorch -c gpytorch -c conda-forge`
-
-`mamba update -c conda-forge ffmpeg`
-
-`mamba install -c conda-forge dash`
-
-`pip install keras`
-
-`pip install tensorflow`
 
 ![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg) | ![cat](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/chemcat_small.jpg)
 
@@ -103,3 +90,47 @@ The numbers from the model output are entered to prompt as strings with one deci
 
 
 # An app to rule them all
+
+**Coming soon to your home for every preferential BO enthusiast**
+
+*Miscellaneous*
+
+**Environment**
+To run the code, we're typically updating a conda/mamba environment that, on the first time, can be installed using the following commands:
+
+`mamba create -n botorch_mar2024 pytorch torchvision torchaudio pytorch-cuda=11.8 python==3.11 -c pytorch -c nvidia`
+
+`mamba install botorch matplotlib seaborn -c pytorch -c gpytorch -c conda-forge`
+
+`mamba update -c conda-forge ffmpeg`
+
+`mamba install -c conda-forge dash`
+
+`pip install keras`
+
+`pip install tensorflow`
+
+**Seeding**
+Remember to define the seed for random generators when comparing different algorithms:
+
+ 
+`#Your chosen seed
+your_seed = 42
+
+# Set seed for Python's RNG
+random.seed(your_seed)
+
+# Set seed for NumPy RNG
+np.random.seed(your_seed)
+
+# Set seed for PyTorch RNGs
+torch.manual_seed(your_seed)
+
+# Ensure reproducibility for PyTorch operations (might reduce performance)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
+# If using CUDA (PyTorch)
+torch.cuda.manual_seed(your_seed)
+torch.cuda.manual_seed_all(your_seed)  # For multi-GPU setups`
+
