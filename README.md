@@ -16,7 +16,17 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 Fischer-Tropsch Synthesis represents a pivotal process in the field of industrial chemistry, serving as a cornerstone for the production of liquid hydrocarbons from carbon monoxide and hydrogen gases. Developed by German chemists Franz Fischer and Hans Tropsch in the early 1920s, this method provides a versatile pathway for converting syngas—a mixture of hydrogen and carbon monoxide derived from coal, biomass, or natural gas—into a variety of valuable hydrocarbon products, including fuels and alkanes. The process is particularly adopted for its ability to produce clean, sulfur-free fuels, which are crucial in today's efforts towards environmental sustainability and energy security. Through catalytic chemical reactions conducted at high temperatures and pressures, Fischer-Tropsch Synthesis offers a strategic approach to mitigating reliance on crude oil by leveraging alternative carbon sources, thereby playing a critical role in the evolving landscape of global energy.
 
-For this project, we employed a dataset coming from microkinetic model
+The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of carbon monoxide (CO) and hydrogen gas (H₂) into liquid hydrocarbons.
+
+$$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
+
+The ground truth we use here is the Artifitial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time, syngas ratio, temperature and pressure, and four outputs: carbon monoxide conversion, and the selectivity towards methane (SCH4), paraffins (SC2−C4) and light olefins (SC2−C4=).
+
+We set the objective function as maximizing all of the four outputs. However, if in the reality some of the three products are considered as byproducts, we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
+
+*Single-objective BO
+
+*Multi-objective BO
 
 **Into the preference world**
 
