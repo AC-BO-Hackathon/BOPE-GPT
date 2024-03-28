@@ -16,7 +16,7 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 ![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg) | ![cat](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/chemcat_small.jpg)
 
-**The first steps**
+# The first steps
 
 *Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective B0*
 
@@ -52,7 +52,7 @@ We saw that the single-objective BO work quite well when optimizing the four dif
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
 
 
-**Into the preference world**
+# Into the preference world
 
 From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task, since it is often hard *in the field* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
 
@@ -80,4 +80,4 @@ The numbers from the model output are entered to prompt as strings with one deci
 `Suppose you're managing a Fischer-Tropsch synthesis process, and you consider that every output of the process is equally important, you have two options, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
 
 
-**An app to rule them all**
+# An app to rule them all
