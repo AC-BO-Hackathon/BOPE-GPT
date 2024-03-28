@@ -206,7 +206,18 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         ),
       )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-3/3 space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form
+              .handleSubmit(onSubmit)()
+              .catch((err) => {
+                // Handle the error
+                console.error(err);
+              });
+          }}
+          className="space-y-8"
+          >
           <FormField
             control={form.control}
             name="prompt"
