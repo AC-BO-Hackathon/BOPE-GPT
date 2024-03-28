@@ -20,13 +20,13 @@ The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of 
 
 $$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
 
-The ground truth we use here is the Artifitial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs:, and four outputs: .
+The ground truth we use here is the Artifitial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time, syngas ratio, temperature and pressure, and four outputs: carbon monoxide conversion, and the selectivity towards methane (SCH4), paraffins (SC2−C4) and light olefins (SC2−C4=).
 
-We set the objective function as maximizing all of the four outputs. However, if the 
+We set the objective function as maximizing all of the four outputs. However, if in the reality some of the three products are considered as byproducts, we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
 
-*
+*Single-objective BO
 
-*
+*Multi-objective BO
 
 **Into the preference world**
 
