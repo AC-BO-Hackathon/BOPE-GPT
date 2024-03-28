@@ -16,9 +16,9 @@ To run the code, I'm typically updating a conda/mamba environment that, on the f
 
 ![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg) | ![cat](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/chemcat_small.jpg)
 
-**The first steps**
+# The first steps
 
-*Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective B0*
+**Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective B0**
 
 Fischer-Tropsch Synthesis represents a pivotal process in the field of industrial chemistry, serving as a cornerstone for the production of liquid hydrocarbons from carbon monoxide and hydrogen gases. Developed by German chemists Franz Fischer and Hans Tropsch in the early 1920s, this method provides a versatile pathway for converting syngas—a mixture of hydrogen and carbon monoxide derived from coal, biomass, or natural gas—into a variety of valuable hydrocarbon products, including fuels and alkanes. The process is particularly adopted for its ability to produce clean, sulfur-free fuels, which are crucial in today's efforts towards environmental sustainability and energy security. Through catalytic chemical reactions conducted at high temperatures and pressures, Fischer-Tropsch Synthesis offers a strategic approach to mitigating reliance on crude oil by leveraging alternative carbon sources, thereby playing a critical role in the evolving landscape of global energy.
 
@@ -32,9 +32,10 @@ Maximizing all of the four outputs is desirable for this process. However, in re
 
 When you have a ground truth available, classical single objective and multi-objective BO are your start points. These provide useful insight in the nature of each output,i.e, its range, monotonocity, correlations, etc., that are important when working afterwards with preferential Bayesian Optimization.  
 
-*Single-objective BO implementation*
+**Single-objective BO implementation** 
 
-We conducted single-objective BO implementation for four different outputs respectively. The model we use is the SingleTaskGP, and qExpectedImprovement is used as the acquisition function.
+We conducted [single-objective BO implementation](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/singleBO_plots.ipynb) for four different outputs respectively. The model we use is the SingleTaskGP, and qExpectedImprovement is used as the acquisition function.
+
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/56cfb4d7-57b5-4eba-834c-05f82c86a56a)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b16089d5-44f9-4b9c-b80c-1405d0a00ef7)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/cad54e7d-cd85-4d6f-824d-7b404d83a96d)
@@ -44,37 +45,40 @@ We conducted single-objective BO implementation for four different outputs respe
 
 The sigle-objective BO works quite well, and all of the four outputs are close to 1 (the upper cound after normalization) after optimization. A problem here is that the optimal input condition are different for 4 outputs respectively. Therefore, the optimal of the four outputs cannot be reached at the same time.
 
-*Multi-objective BO implementation*
+**Multi-objective BO implementation**
 
-We saw that the single-objective BO work quite well when optimizing the four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
+We saw that the single-objective BO work quite well when optimizing the four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented [multi-objective BO](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/multiBO_plots.ipynb) to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/c28430e4-b81d-413b-9fe5-3e016a1bcc53)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
 
 
-**Into the preference world**
+# Into the preference world
 
-From the multi-object BO, we saw that the multi-objective optimization result could be a very hard task using the distance to the pareto front, because defining the utility function includes the trade-off. While it is often hard to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
+From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task, since it is often hard *in the field* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
 
-*Decision by a comparison function*
+**Decision by a comparison function** 
 
-We first used a comparison function to conduct the decision step and test the preference setting. The model we use here is PairwiseGP, and the acquisition function AnalyticExpectedUtilityOfBestOption (EUBO) can help us to find the best observed value under the preference setting.
+We first used a comparison function to conduct the decision step and [test the preference setting](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO.ipynb). The model we use here is PairwiseGP, and the acquisition function AnalyticExpectedUtilityOfBestOption (EUBO) can help us to find the best observed value under the preference setting.
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/86d8e3bc-b44f-4e19-baed-d8931e69c8ec)
 
-*Decision by an LLM & Comparison of different objective functions*
+**Decision by an LLM & Comparison of different objective functions**
 
-Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo)
+Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo), so that the comparison by utility function can be replaced by the decision of an LLM.
 
 We explored different cases below:
 1. The four outputs are equally important, and we want to maximize all of them.
 2. We only want to maximize the CO conversion.
-3. The xx is considered as a negative output and we want to minimize it while maximizing the other three objectives.
+3. The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3).
 
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
 `Suppose you're managing a Fischer-Tropsch synthesis process, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
 
-The numbers from the model output are entered to prompt as strings with one decimal, to simplify the input and provide some fuzziness in the LLM decision (after prompt engineering, we realise that numbers with many decimals are not well intepreted by the free Cohere API LLM)
+The numbers from the model output are entered to prompt as strings with one decimal, to simplify the input and provide some fuzziness in the LLM decision (after prompt engineering, we realise that numbers with many decimals are not well intepreted by the free Cohere API LLM). Now, testing some of the cases before means translating (perhaps subjetively) the utility function into a prompt context that the LLM can take. For case 1 e.g. the equally important outputs means that the utility function is a (equally weighted) linear combination of the outputs, but when applying this in the LLM context for comparison, we need to change the context prompt to something like this: 
 
-**An app to rule them all**
+`Suppose you're managing a Fischer-Tropsch synthesis process, and you consider that every output of the process is equally important, you have two options, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
+
+
+# An app to rule them all
