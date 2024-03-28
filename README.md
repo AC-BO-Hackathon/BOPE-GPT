@@ -26,7 +26,9 @@ $$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
 
 The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F_{CO}), syngas ratio, temperature and pressure, and four outputs: carbon monoxide conversion, and the selectivity towards methane (SCH4), paraffins (SC2−C4) and light olefins (SC2−C4=).
 
-We set the objective function as maximizing all of the four outputs. However, if in the reality some of the three products are considered as byproducts, we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
+Maximizing all of the four outputs is desirable for this process. However, in reality some of the three products are considered as byproducts, and the ones you care only achieve high selectivity under very intensive conditions, which are not feasible in technical terms or economical terms. Therefore,we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
+
+When you have a ground truth available, classical single objective and multi-objective BO are your start points. These provide useful insight in the nature of each output,i.e, its range, monotonocity, correlations, etc., that are important when working afterwards with preferential Bayesian Optimization.  
 
 *Single-objective BO implementation*
 
