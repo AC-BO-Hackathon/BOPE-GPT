@@ -26,10 +26,11 @@ We set the objective function as maximizing all of the four outputs. However, if
 
 *Single-objective BO implementation*
 
+We conducted single-objective BO implementation for four different outputs respectively.
 
 *Multi-objective BO implementation*
 
-We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
+We saw that the single-objective BO work quite well when optimizing the  four different outputs separately, but the four outputs includes potential trade-offs, and the optimal value cannot be reached at the same time. We then implemented multi-objective BO to explore the pareto front in the Fischer-Tropsch dataset and identify poteintial trade-offs. We keep the SingleTaskGP as the model, and the qExpectedHypervolumeImprovement as the acquisition function to see the pareto front. By looking at the pairwise comparision of the output pairs, we found for some pairs of the output, the trade-off is quite clear (e.g. output 1 and output 3). However, some of them are hard to identify (e.g. output 3 and output 4).
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/c28430e4-b81d-413b-9fe5-3e016a1bcc53)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/d7b97464-eb85-4e70-8ad0-5f28516559de)
@@ -53,6 +54,6 @@ Finally we turned to the pairwise comparison by LLM.
 We explored different cases below:
 1. The four outputs are equally important, and we want to maximize all of them.
 2. We only want to maximize the CO conversion.
-3. The xx is considered as a negative output and we want to minimize it while maximizing the other three.
+3. The xx is considered as a negative output and we want to minimize it while maximizing the other three objectives.
 
 **An app to rule them all**
