@@ -26,10 +26,10 @@ import pandas as pd
 from botorch.utils.sampling import draw_sobol_samples
 from torch.quasirandom import SobolEngine
 
-global best_y_list, itera_list, mean,train_x, train_y
-train_x = None
-train_y = None
-mean = None
+global best_y_list, itera_list, mean_list,train_x_list, train_y_list
+train_x_list = []
+train_y_list = []
+mean_list = []
 best_y_list = []
 itera_list = []
 
@@ -283,7 +283,7 @@ X1_num=X1.cpu().numpy()
 X2_num=X2.cpu().numpy()
 
 def botorch_process(d):
-  global train_x, train_y, best_y_list, itera_list, mean
+  global train_x_list, train_y_list, best_y_list, itera_list, mean
   dim=int(d["inputBounds"])
   N=int(d["numSamples"])
   batch_size=int(d["numBatch"])
@@ -293,26 +293,24 @@ def botorch_process(d):
     sobol_engine = SobolEngine(dimension=dim, scramble=False)  # 2 dimensions for your input space
     train_x = draw_sobol_samples(bounds=bounds, n=1, q=N).squeeze(0)
     train_y=branin(train_x, negate=True).unsqueeze(-1)
+    train_x_list.append(train_x)
+    train_y_list.append(train_y)
+  train_x=train_x_list[-1]
+  train_y=train_y_list[-1]
+  print(train_x,train_y)
+  best_y=train_y.max().cpu().numpy()
 
-    print(train_x,train_y)
-    best_y=train_y.max().cpu().numpy()
-    best_y_list.append(best_y)
-    itera_list.append(itera)
-    #print(best_y_list,itera_list)
-    #fit model
-    gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
-    mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-    fit_gpytorch_model(mll)
-    resolution=100
-    grid = torch.stack([X1.flatten(), X2.flatten()], -1)
-    with torch.no_grad():
-      mean = gp_model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
-      #print(mean)
+  best_y_list.append(best_y)
+  itera_list.append(itera)
+    
+  gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
+  mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
+  fit_gpytorch_model(mll)
 
   
-    EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
-    #optimisation of acquisition function
-    candidate, _ = optimize_acqf(
+  EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
+  #optimisation of acquisition function
+  candidate, _ = optimize_acqf(
         acq_function=EI,
         bounds=bounds,
         q=batch_size,
@@ -321,39 +319,18 @@ def botorch_process(d):
         options={"dtype": dtype, "device": device}
     )
     
-    new_y = branin(train_x, negate=True).unsqueeze(-1)
-    train_x = torch.cat([train_x, candidate])
-    train_y = torch.cat([train_y, new_y])
-    print(train_x,train_y)
-  else:
-    best_y=train_y.max().cpu().numpy()
-    best_y_list.append(best_y)
-    itera_list.append(itera)
-    print(best_y_list, itera_list)
-    gp_model = SingleTaskGP(train_x, train_y).to(device=device, dtype=dtype)
-    mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-    fit_gpytorch_model(mll)
+  new_y = branin(candidate, negate=True).unsqueeze(-1)
+  print(new_y)
+  train_x = torch.cat([train_x, candidate])
+  train_y = torch.cat([train_y, new_y])
+  train_x_list.append(train_x)
+  train_y_list.append(train_y)
 
-  
-    EI = qExpectedImprovement(model=gp_model, best_f=train_y.max())#, maximize=True)
-    #optimisation of acquisition function
-    candidate, _ = optimize_acqf(
-        acq_function=EI,
-        bounds=bounds,
-        q=batch_size,
-        num_restarts=5,
-        raw_samples=20,
-        options={"dtype": dtype, "device": device}
-    )
-    
-    new_y = branin(train_x, negate=True).unsqueeze(-1)
-    train_x = torch.cat([train_x, candidate])
-    train_y = torch.cat([train_y, new_y])
-
-    resolution=100
-    grid = torch.stack([X1.flatten(), X2.flatten()], -1)
-    with torch.no_grad():
-      mean = gp_model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
+  resolution=100
+  grid = torch.stack([X1.flatten(), X2.flatten()], -1)
+  with torch.no_grad():
+    mean = gp_model.posterior(grid).mean.cpu().numpy().reshape(resolution, resolution)
+    mean_list.append(mean)
 
 
   return None
@@ -390,7 +367,8 @@ html.Span(
     [Input(component_id="load_interval", component_property="n_intervals"),]
 )
 def update_contour_plot(load_interval):
-    figure = go.Figure(data=go.Contour(z=mean, x=X1_num, y=X2_num))
+    #print(train_x_list)
+    figure = go.Figure(data=go.Contour(z=mean_list, x=X1_num, y=X2_num))
     figure.update_xaxes(range=[0, 1])  # Here, 0 is the minimum and 6 is the maximum value for x-axis
     figure.update_yaxes(range=[0, 1])
     figure.update_layout(title='Branin Function Contour Plot',
