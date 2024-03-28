@@ -34,7 +34,7 @@ When you have a ground truth available, classical single objective and multi-obj
 
 *Single-objective BO implementation*
 
-We conducted single-objective BO implementation for four different outputs respectively.
+We conducted single-objective BO implementation for four different outputs respectively. The model we use is the SingleTaskGP, and qExpectedImprovement is used as the acquisition function.
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/56cfb4d7-57b5-4eba-834c-05f82c86a56a)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/b16089d5-44f9-4b9c-b80c-1405d0a00ef7)
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/cad54e7d-cd85-4d6f-824d-7b404d83a96d)
@@ -58,7 +58,7 @@ From the multi-object BO, we saw that the multi-objective optimization result co
 
 *Decision by a comparison function*
 
-We first used a comparison function to conduct the decision step and test the preference setting. We found that the preference setting with AnalyticExpectedUtilityOfBestOption (EUBO) can help us to find the best observed value.
+We first used a comparison function to conduct the decision step and test the preference setting. The model we use here is PairwiseGP, and the acquisition function AnalyticExpectedUtilityOfBestOption (EUBO) can help us to find the best observed value under the preference setting.
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/86d8e3bc-b44f-4e19-baed-d8931e69c8ec)
 
