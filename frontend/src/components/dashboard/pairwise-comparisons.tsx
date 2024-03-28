@@ -113,7 +113,7 @@ export function PairwiseComparisonsTable() {
               <TableBody>
                 {pairwise_data.map((data, index) => {
                     return (
-                    <React.Fragment key={data.data}>
+                    <React.Fragment key={data.id}>
                         <TableRow>
                           <TableCell className="font-medium">{data.id}</TableCell>
                           <TableCell>{data.W_FCO}</TableCell>
