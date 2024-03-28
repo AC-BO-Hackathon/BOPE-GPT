@@ -167,6 +167,12 @@ HTML_CONTENT = '''
 </div>
 <script>
 let iterationCounter = 0;
+function freezeFor(milliseconds) {
+  const now = new Date().getTime();
+  while(new Date().getTime() < now + milliseconds) {
+    // Do nothing: this will block execution, simulating a freeze.
+  }
+}
 
 function nextIteration() {
   
@@ -260,14 +266,14 @@ function nextIteration() {
     };
     document.querySelector('.parametersBox').appendChild(downloadBtn);
   }
+  freezeFor(2000);
 
-  // Refresh the Dash iframe to update the visualization
+  alert("Iteration complete!");
+
+    // Refresh the Dash iframe to update the visualization
   var dashIframe = document.getElementById('dashIframe');
   var iframeUrl = "http://127.0.0.1:8080/dash"; // Base URL of your Dash app
    dashIframe.src = iframeUrl + "?update=" + new Date().getTime(); // Appending a unique query string to force refresh
-
-
-  alert("Iteration complete!");
 }
 </script>
 <footer style="text-align:center; margin-top:20px;">
@@ -288,7 +294,7 @@ def botorch_process(d):
   N=int(d["numSamples"])
   batch_size=int(d["numBatch"])
   itera=int(d["iterationCount"])
-  print(dim,N,batch_size,itera)
+
   if itera==1:
     sobol_engine = SobolEngine(dimension=dim, scramble=False)  # 2 dimensions for your input space
     train_x = draw_sobol_samples(bounds=bounds, n=1, q=N).squeeze(0)
@@ -297,7 +303,7 @@ def botorch_process(d):
     train_y_list.append(train_y)
   train_x=train_x_list[-1]
   train_y=train_y_list[-1]
-  print(train_x,train_y)
+  
   best_y=train_y.max().cpu().numpy()
 
   best_y_list.append(best_y)
@@ -320,11 +326,11 @@ def botorch_process(d):
     )
     
   new_y = branin(candidate, negate=True).unsqueeze(-1)
-  print(new_y)
   train_x = torch.cat([train_x, candidate])
   train_y = torch.cat([train_y, new_y])
   train_x_list.append(train_x)
   train_y_list.append(train_y)
+
 
   resolution=100
   grid = torch.stack([X1.flatten(), X2.flatten()], -1)
@@ -345,11 +351,8 @@ app = dash.Dash(__name__, server=server, routes_pathname_prefix='/dash/')
 
 app.layout = html.Div([
     html.Div([
-        dcc.Graph(id='branin-contour-plot-graph'),
-    ], style={'width': '50%', 'display': 'inline-block'}),
-    html.Div([
-        dcc.Graph(id='branin-surface-plot-graph'),
-    ], style={'width': '50%', 'display': 'inline-block'}),
+        dcc.Graph(id='branin-contour-plot-graph'),dcc.Graph(id='branin-surface-plot-graph')
+    ], style={'width': '100%', 'display': 'inline-block'}),
     dcc.Interval(
     id="load_interval", 
     n_intervals=0, 
@@ -367,7 +370,7 @@ html.Span(
     [Input(component_id="load_interval", component_property="n_intervals"),]
 )
 def update_contour_plot(load_interval):
-    #print(train_x_list)
+
     figure = go.Figure(data=go.Contour(z=mean_list, x=X1_num, y=X2_num))
     figure.update_xaxes(range=[0, 1])  # Here, 0 is the minimum and 6 is the maximum value for x-axis
     figure.update_yaxes(range=[0, 1])
@@ -393,7 +396,6 @@ def update_surface_plot(load_interval):
 def process_data():
     # Access the raw data from the POST request
     raw_data = request.get_data(as_text=True)  # or use request.data for binary data
-    print(raw_data)
     d = json.loads(raw_data)
     botorch_process(d)
     return d
