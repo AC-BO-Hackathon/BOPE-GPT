@@ -18,7 +18,7 @@ Fischer-Tropsch Synthesis represents a pivotal process in the field of industria
 
 The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of carbon monoxide (CO) and hydrogen gas (H₂) into liquid hydrocarbons.
 
-\[ n\,CO + (2n+1)\,H_2 \rightarrow C_nH_{2n+2} + n\,H_2O \]
+$$ n\,CO + (2n+1)\,H_2 \rightarrow C_nH_{2n+2} + n\,H_2O $$
 
 
 **Into the preference world**
