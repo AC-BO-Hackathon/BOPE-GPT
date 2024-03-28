@@ -35,10 +35,11 @@ We then implemented multi-objective BO to explore the pareto front in the Fische
 
 
 **Into the preference world**
-From the multi-object BO, we saw that the multi-objective optimization result could be a very hard task using the distance to the pareto front, because it is very hard to define the objective. Therefrore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
+
+From the multi-object BO, we saw that the multi-objective optimization result could be a very hard task using the distance to the pareto front, because defining the objective includes the trade-off. Therefrore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
 
 *Decision by a comparison function*
-We first used a comparison function to 
+We first used a comparison function to conduct the decision step.
 
 *Decision by an LLM*
 Finally we turned to the pairwise comparison by LLM.
