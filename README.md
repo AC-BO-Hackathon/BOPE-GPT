@@ -67,10 +67,18 @@ We first used a comparison function to conduct the decision step and [test the p
 
 Finally we turned to the pairwise comparison by LLM. Basically, we modify the pairwise comparison generation function in the Botorch tutorial section [here](https://botorch.org/tutorials/preference_bo), so that the comparison by utility function can be replaced by the decision of an LLM.
 
-We explored different cases below:
-1. The four outputs are equally important, and we want to maximize all of them.
-2. We only want to maximize the CO conversion.
-3. The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3).
+We explored different cases below: ("" means prompt, [] indicates objective function, and we compare the performance of the two for the optimal values)
+1. "The four outputs are equally important, and we want to maximize all of them."
+[obj: maximize sum of y1-y4]
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/9127818f-dced-4d7a-a174-5526bbfea999)
+
+2. "We only want to maximize the CO conversion."
+[obj: maximize y1]
+
+  
+3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
+[obj: maximize y1+y2+y3-y4]
+
 
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
