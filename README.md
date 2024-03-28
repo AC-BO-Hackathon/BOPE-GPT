@@ -3,6 +3,7 @@
 
 ![reactor](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/reactor_small.jpg) | ![cat](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/images/chemcat_small.jpg)
 
+**Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
 # The first steps
 
 **Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective BO**
@@ -114,23 +115,23 @@ To run the code, we're typically updating a conda/mamba environment that, on the
 Remember to define the seed for random generators when comparing different algorithms:
 
  
-`#Your chosen seed
-your_seed = 42
+`#Your chosen seed`
+`your_seed = 42`
 
-# Set seed for Python's RNG
-random.seed(your_seed)
 
-# Set seed for NumPy RNG
-np.random.seed(your_seed)
+`random.seed(your_seed)`
 
-# Set seed for PyTorch RNGs
-torch.manual_seed(your_seed)
 
-# Ensure reproducibility for PyTorch operations (might reduce performance)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
+`np.random.seed(your_seed)`
 
-# If using CUDA (PyTorch)
-torch.cuda.manual_seed(your_seed)
-torch.cuda.manual_seed_all(your_seed)  # For multi-GPU setups`
+
+`torch.manual_seed(your_seed)`
+
+
+`torch.backends.cudnn.deterministic = True`
+`torch.backends.cudnn.benchmark = False`
+
+
+`torch.cuda.manual_seed(your_seed)`
+`torch.cuda.manual_seed_all(your_seed)`
 
