@@ -29,6 +29,10 @@ from botorch.optim import optimize_acqf
 
 import pickle
 
+
+import generate_data,generate_data_u1,init_and_fit_model
+import generate_comparisons_llm
+
 #algos = ["EUBO","EUBO-LLM", "rand"]
 def run_one_iteration_initial(algo,dim,q_inidata):
 
