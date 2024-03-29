@@ -23,9 +23,9 @@ The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of 
 
 $$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
 
-The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F~CO~), syngas ratio, temperature and pressure, and four outputs: y1 for the carbon monoxide conversion, y2 as the selectivity towards methane (SCH4), y3 as the selectivity towards paraffins (SC2−C4) and y4 as the selectivity towards light olefins (SC2−C4=).
+The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F<sub>CO</sub>), syngas ratio, temperature and pressure, and four outputs: y1 for the carbon monoxide conversion, y2 as the selectivity towards methane (SCH4), y3 as the selectivity towards paraffins (SC2−C4) and y4 as the selectivity towards light olefins (SC2−C4=).
 
-Maximizing all of the four outputs is desirable for this process. However, in reality some of the three products are considered as byproducts, and the ones you care only achieve high selectivity under very intensive conditions, which are not feasible in technical terms or economical terms. Therefore,we can adjust the objective settings in BO and make the optimization problem more adapted to the reality.
+> Maximizing all of the four outputs is desirable for this process. However, in reality some of the three products are considered as byproducts, and the ones you care only achieve high selectivity under very intensive conditions, which are not feasible in technical terms or economical terms. Therefore, we can adjust the objective settings in th BO routine and make the optimization problem more adapted to what would be a real situation.
 
 When you have a ground truth available, classical single objective and multi-objective BO are your start points. These provide useful insight in the nature of each output,i.e, its range, monotonocity, correlations, etc., that are important when working afterwards with preferential Bayesian Optimization.  
 
@@ -146,3 +146,4 @@ Remember to define the seed for random generators when comparing different algor
 `torch.cuda.manual_seed(your_seed)`
 `torch.cuda.manual_seed_all(your_seed)`
 
+# References
