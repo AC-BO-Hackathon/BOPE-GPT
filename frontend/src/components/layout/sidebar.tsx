@@ -24,7 +24,7 @@ export default function Sidebar({ className }: SidebarProps) {
       className={cn(
         `overflow-y-auto max-h-[calc(100vh - 4rem)] relative hidden h-screen border-r pt-20 md:block`,
         status && "duration-500",
-        isOpen ? "w-300px" : "w-[78px]",
+        isOpen ? "w-250px" : "w-[50px]",
         className
       )}
     >
