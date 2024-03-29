@@ -8,6 +8,11 @@ main_bp = Blueprint('main', __name__)
 model_instances = {}
 model_queue = Queue()
 
+#route to check if the app is running
+@main_bp.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({'message': 'Pong! The app is running.'})
+
 @main_bp.route('/initialize', methods=['POST'])
 def initialize_bope():
     data = request.get_json()
