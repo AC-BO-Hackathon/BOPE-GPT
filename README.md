@@ -91,17 +91,16 @@ The optimized sum can reach ~1, which is the maximal value after MinMax normaliz
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/55d0946d-c1ba-4d77-87db-a89d7f3227be)
 
-*4. A typo case of the first objective
+*4. A dual case of the first objective (with typo in prompt)
 
 "The four outputs are equally important, and we want to minimize all of them."
 [obj: maximize sum of y1-y4]
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/45987c4d-8ad3-47e5-b68f-506b0d0c5a58)
 
-In this case, we modified the prompt with a typo, and keep all the other utility & target function as the same with case 1.
+In this case, we modified the prompt with a typo, and keep all the other utility & target function as the same with case 1. From the results, we can see that the performance of EUBO-LLM with typo is lower than random. The LLM with typo changes the whole meaning of the prompt, showing the importance of the prompt.
 
 From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
-
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
 `Suppose you're managing a Fischer-Tropsch synthesis process, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
