@@ -7,7 +7,7 @@
 
 Youtube video: [Video](https://youtu.be/AbRDOdmafB8)
 
-Reduced slide set for video:  [Slides](https://www.canva.com/design/DAGA0QyCi0U/YlztehHrUUn9Pu3aya-Ysg/edit)
+Reduced slide set for video:  [Slides](https://www.canva.com/design/DAGA5QgbgTA/jyK2A_IGolI2_5zDI2n4EQ/edit)
 
 Full slides by Zartashia Afzal: [Slides](https://www.canva.com/design/DAGA0QyCi0U/YlztehHrUUn9Pu3aya-Ysg/edit)
 
