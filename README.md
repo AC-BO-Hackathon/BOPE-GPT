@@ -90,6 +90,12 @@ We explored different cases below: ("" means prompt to the LLM, [] indicates obj
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/55d0946d-c1ba-4d77-87db-a89d7f3227be)
 
+*4. A typo case of the first objective
+"The four outputs are equally important, and we want to minimize all of them."
+[obj: maximize sum of y1-y4]
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/45987c4d-8ad3-47e5-b68f-506b0d0c5a58)
+
 
 
 From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
@@ -149,3 +155,6 @@ Remember to define the seed for random generators when comparing different algor
 `torch.cuda.manual_seed_all(your_seed)`
 
 # References
+Chakkingal A, Janssens P, Poissonnier J, Virginie M, Khodakov AY, et al. Multi-output machine learning models for kinetic data evaluation : A Fischer–Tropsch synthesis case study. Chemical Engineering Journal 2022;446:137186.
+
+Qin Z, Jagerman R, Hui K, Zhuang H, Wu J, et al. Large Language Models are Effective Text Rankers with Pairwise Ranking Prompting. DOI: 10.48550/arXiv.2306.17563.
