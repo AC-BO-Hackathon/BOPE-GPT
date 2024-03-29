@@ -34,7 +34,7 @@ def run_initial():
     # data['initial'] = result
     
     # Returning the result as JSON
-    return jsonify(result), 200
+    return None#jsonify(result), 200
 
 @main_bp.route('/run_normal', methods=['GET'])
 def run_normal():
@@ -53,7 +53,7 @@ def run_normal():
     # data['normal'] = result
     
     # Returning the result as JSON
-    return jsonify(result), 200
+    return None#jsonify(result), 200
 
 # Register blueprints
 app.register_blueprint(main_bp, url_prefix='/api')
