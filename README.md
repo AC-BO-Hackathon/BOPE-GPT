@@ -77,13 +77,14 @@ We explored different cases below: ("" means prompt to the LLM, [] indicates obj
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/004ce5ac-6570-4f06-bc82-4654b7b9d569)
 
+The optimized sum can reach ~3.1, which is reasonable for the dataset and the model.
 
 2. "We only want to maximize the CO conversion."
 [obj: maximize y1]
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/fd0c3e85-0c54-46f6-bc67-ecf80c963a73)
 
-
+The optimized sum can reach ~1, which is the maximal value after MinMax normalization.
   
 3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
 [obj: maximize y1+y2+y3-y4]
@@ -91,12 +92,13 @@ We explored different cases below: ("" means prompt to the LLM, [] indicates obj
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/55d0946d-c1ba-4d77-87db-a89d7f3227be)
 
 *4. A typo case of the first objective
+
 "The four outputs are equally important, and we want to minimize all of them."
 [obj: maximize sum of y1-y4]
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/45987c4d-8ad3-47e5-b68f-506b0d0c5a58)
 
-
+In this case, we modified the prompt with a typo, and keep all the other utility & target function as the same with case 1.
 
 From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
 
