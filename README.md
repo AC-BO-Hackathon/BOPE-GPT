@@ -4,12 +4,15 @@
 ![reactor](images/reactor_small.jpg) | ![cat](images/chemcat_small.jpg)
 
 **Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
-# The first steps
-
 Youtube video:
+
 Reduced slide set for video:
+
 Full slides by Zartashia Afzal: [Slides]
+
 App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
+
+# The first steps
 
 **Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective BO**
 
