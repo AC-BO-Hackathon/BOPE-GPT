@@ -156,9 +156,9 @@ def run_one_iteration_initial(algo,dim,q_inidata):
         max_val = utility1(X).max().item()
         best_vals[algo][-1].append(max_val)
 
-return best_vals
+return data,best_vals
 
-def run_one_iteration_normal(algo,dim,q_inidata,best_vals):
+def run_one_iteration_normal(algo,dim,q_inidata,best_vals,data):
 
     #sampler options
     NUM_RESTARTS = 3
@@ -184,33 +184,9 @@ def run_one_iteration_normal(algo,dim,q_inidata,best_vals):
      # X are within the unit cube
     bounds = torch.stack([torch.zeros(dim), torch.ones(dim)])
 
-     # Create initial data
-    init_X=ini(q_inidata,dim)
-
-    #evaluate utility function and generate comparision, initial part
-
-    if algo == "EUBO-LLM":
-        init_y = generate_data(init_X, dim=dim)
-        #add argument for LLM
-        comparisons = generate_comparisons_llm(init_y, q_comp_ini)
-    if algo == "EUBO":
-        init_y = generate_data_u1(init_X, dim=dim)
-        comparisons = generate_comparisons(init_y, q_comp_ini)
-    if algo == "rand":
-        init_y = generate_data_u1(init_X, dim=dim)
-        comparisons = generate_comparisons(init_y, q_comp_ini)
-
-
-    #saving the best value
-    best_vals[algo].append([])
-    #saving the data
-    data[algo] = (init_X, comparisons)
+   
     #surrogate model
     _, models[algo] = init_and_fit_model(init_X, comparisons)
-
-    #evaluation of the initial_data and best value append
-    best_next_y = utility1(init_X).max().item()
-    best_vals[algo][-1].append(best_next_y)
 
     model = models[algo]
 
@@ -277,4 +253,4 @@ def run_one_iteration_normal(algo,dim,q_inidata,best_vals):
         max_val = utility1(X).max().item()
         best_vals[algo][-1].append(max_val)
 
-return best_vals
+return data, best_vals
