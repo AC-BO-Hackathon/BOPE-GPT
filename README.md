@@ -93,7 +93,7 @@ The optimized sum can reach ~1, which is the maximal value after MinMax normaliz
 
 *4. A dual case of the first objective (with typo in prompt)
 
-"The four outputs are equally important, and we want to <mark>minimize</mark> all of them."
+"The four outputs are equally important, and we want to <span style="background-color: #FFFF00">minimize</span> all of them."
 [obj: maximize sum of y1-y4]  [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_1_evil_muejeje.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/45987c4d-8ad3-47e5-b68f-506b0d0c5a58)
