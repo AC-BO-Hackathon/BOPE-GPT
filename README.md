@@ -156,6 +156,12 @@ Remember to define the seed for random generators when comparing different algor
 `torch.cuda.manual_seed_all(your_seed)`
 
 # References
-Chakkingal A, Janssens P, Poissonnier J, Virginie M, Khodakov AY, et al. Multi-output machine learning models for kinetic data evaluation : A Fischer–Tropsch synthesis case study. Chemical Engineering Journal 2022;446:137186.
-
-Qin Z, Jagerman R, Hui K, Zhuang H, Wu J, et al. Large Language Models are Effective Text Rankers with Pairwise Ranking Prompting. DOI: 10.48550/arXiv.2306.17563.
+1. [BoTorch tutorial for Preference BO](https://botorch.org/tutorials/bope).
+2. [BoTorch tutorial for BOPE](https://botorch.org/tutorials/bope).
+3. González J, Dai Z, Damianou A, Lawrence ND. [Preferential Bayesian Optimization](https://proceedings.mlr.press/v70/gonzalez17a). In: Proceedings of the 34th International Conference on Machine Learning. PMLR. pp. 1282–1291.
+4. Lin ZJ, Astudillo R, Frazier P, Bakshy E. [Preference Exploration for Efficient Bayesian Optimization with Multiple Outcomes](https://proceedings.mlr.press/v151/jerry-lin22a). In: Proceedings of The 25th International Conference on Artificial Intelligence and Statistics. PMLR. pp. 4235–4258.
+5. Lozano-Blanco G, Thybaut JW, Surla K, Galtier P, Marin GB. [Single-Event Microkinetic Model for Fischer−Tropsch Synthesis on Iron-Based Catalysts](https://pubs.acs.org/doi/10.1021/ie071587u). Ind Eng Chem Res 2008;47:5879–5891.
+6. Chakkingal A, Janssens P, Poissonnier J, Virginie M, Khodakov AY, et al. [Multi-output machine learning models for kinetic data evaluation : A Fischer–Tropsch synthesis case study](https://www.sciencedirect.com/science/article/pii/S1385894722026754). Chemical Engineering Journal 2022;446:137186.
+7. Qin Z, Jagerman R, Hui K, Zhuang H, Wu J, et al. [Large Language Models are Effective Text Rankers with Pairwise Ranking Prompting](https://arxiv.org/abs/2306.17563). DOI: 10.48550/arXiv.2306.17563.
+8. Balandat M, Karrer B, Jiang DR, Daulton S, Letham B, et al. [BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization. Epub ahead of print 8 December 2020](https://arxiv.org/abs/1910.06403). DOI: 10.48550/arXiv.1910.06403.
+ 
