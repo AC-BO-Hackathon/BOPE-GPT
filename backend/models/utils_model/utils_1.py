@@ -11,8 +11,8 @@ warnings.filterwarnings("ignore")
 
 SMOKE_TEST = os.environ.get("SMOKE_TEST")
 
-import DTLZ2_model
-import fischer_model
+#import DTLZ2_model
+#import fischer_model
 from botorch.test_functions.multi_objective import DTLZ2
 from DTLZ2_model import neg_l1_dist
 from DTLZ2_model import predict_DTLZ2_model
@@ -26,6 +26,8 @@ from botorch.models.pairwise_gp import PairwiseGP, PairwiseLaplaceMarginalLogLik
 from botorch.models.transforms.input import Normalize
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from botorch.optim import optimize_acqf
+
+from utils_llm import generate_comparisons_llm
 
 import pickle
 

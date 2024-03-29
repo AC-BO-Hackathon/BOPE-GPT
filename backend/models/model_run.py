@@ -11,8 +11,8 @@ warnings.filterwarnings("ignore")
 
 SMOKE_TEST = os.environ.get("SMOKE_TEST")
 
-import DTLZ2_model
-import fischer_model
+#import DTLZ2_model
+#import fischer_model
 from botorch.test_functions.multi_objective import DTLZ2
 from DTLZ2_model import neg_l1_dist
 from DTLZ2_model import predict_DTLZ2_model
@@ -30,11 +30,14 @@ from botorch.optim import optimize_acqf
 import pickle
 
 
-from utils_model.utils_1 utils_1import generate_data,generate_data_u1,init_and_fit_model
+from utils_model.utils_1 import ini, generate_comparisons, make_new_data_u1, make_new_data, utility1, generate_data,generate_data_u1,init_and_fit_model
 from utils_model.utils_llm import generate_comparisons_llm
 
+# setting SEED
+i = 1
+
 #algos = ["EUBO","EUBO-LLM", "rand"]
-def run_one_iteration_initial(algo,dim,q_inidata, prompt=None):
+def run_one_iteration_initial(algos,dim,q_inidata, prompt=None):
 
     #sampler options
     NUM_RESTARTS = 3
@@ -116,7 +119,7 @@ def run_one_iteration_initial(algo,dim,q_inidata, prompt=None):
         data[algo] = (X, comps)
         
         # refit models
-         _, models[algo] = init_and_fit_model(X, comps)
+        _, models[algo] = init_and_fit_model(X, comps)
         
         # record the best observed values so far
         max_val = utility1(X).max().item()
@@ -160,7 +163,7 @@ def run_one_iteration_initial(algo,dim,q_inidata, prompt=None):
         max_val = utility1(X).max().item()
         best_vals[algo][-1].append(max_val)
 
-return data,best_vals
+    return data,best_vals
 
 def run_one_iteration_normal(algo,dim,q_inidata,best_vals,data, prompt=None):
 
@@ -213,7 +216,7 @@ def run_one_iteration_normal(algo,dim,q_inidata,best_vals,data, prompt=None):
         data[algo] = (X, comps)
         
         # refit models
-         _, models[algo] = init_and_fit_model(X, comps)
+        _, models[algo] = init_and_fit_model(X, comps)
         
         # record the best observed values so far
         max_val = utility1(X).max().item()
@@ -257,4 +260,4 @@ def run_one_iteration_normal(algo,dim,q_inidata,best_vals,data, prompt=None):
         max_val = utility1(X).max().item()
         best_vals[algo][-1].append(max_val)
 
-return data, best_vals
+    return data, best_vals
