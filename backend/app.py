@@ -40,6 +40,7 @@ def run_initial():
 def run_normal():
     # Extract a query parameter named 'prompt' if needed
     data = request.get_json()
+    #this is new algo option to decide if "EUBO", "EUBO-LLM", "rand"
     algo = data.get('algo')
     dim = data.get('dim')
     q_inidata = data.get('q_inidata')
