@@ -30,129 +30,251 @@ from botorch.optim import optimize_acqf
 import pickle
 
 #algos = ["EUBO","EUBO-LLM", "rand"]
-def run_one_iteration_initial(algo):
+def run_one_iteration_initial(algo,dim,q_inidata):
 
+    #sampler options
+    NUM_RESTARTS = 3
+    RAW_SAMPLES = 512 if not SMOKE_TEST else 8
+
+    #number of inputs
+    #dim = 4
+    #q_inidata=5 #number_of_initial_samples
     
 
+    #interface
+    #let's keep it fixed
+    q_eubo = 2  # number of points per query
+    q_comp_ini = 10  # number of comparisons per query
+    q_comp_cycle=1 #tow options, one comp
 
-dim = 4
+    # initial evals keep the best values after each iteration
+    best_vals = {}  # best observed values
+    for algo in algos:
+        best_vals[algo] = []
 
-#sampler options
-NUM_RESTARTS = 3
-RAW_SAMPLES = 512 if not SMOKE_TEST else 8
+    # average over multiple trials
 
-#interface
-q_eubo = 2  # number of points per query
+    #seed and dictionaries
+    torch.manual_seed(i)
+    np.random.seed(i)
+    data = {}
+    models = {}
 
-q_data=5 #number_of_initial_samples
-q_comp = 10  # number of comparisons per query
-q_comp_2=1
+     # X are within the unit cube
+    bounds = torch.stack([torch.zeros(dim), torch.ones(dim)])
 
-# initial evals keep the best values after each iteration
-best_vals = {}  # best observed values
-for algo in algos:
-    best_vals[algo] = []
+     # Create initial data
+    init_X=ini(q_inidata,dim)
 
-# average over multiple trials
+    #evaluate utility function and generate comparision, initial part
 
-#seed and dictionaries
-torch.manual_seed(i)
-np.random.seed(i)
-data = {}
-models = {}
-
- # X are within the unit cube
-bounds = torch.stack([torch.zeros(dim), torch.ones(dim)])
-
- # Create initial data
-init_X=ini(q_data,dim)
-
-#evaluate utility function and generate comparision, initial part
-
-if algo == "EUBO-LLM":
-    init_y = generate_data(init_X, dim=dim)
-    #add argument for LLM
-    comparisons = generate_comparisons_llm(init_y, q_comp)
-if algo == "EUBO":
-    init_y = generate_data_u1(init_X, dim=dim)
-    comparisons = generate_comparisons(init_y, q_comp)
-if algo == "rand":
-    init_y = generate_data_u1(init_X, dim=dim)
-    comparisons = generate_comparisons(init_y, q_comp)
+    if algo == "EUBO-LLM":
+        init_y = generate_data(init_X, dim=dim)
+        #add argument for LLM
+        comparisons = generate_comparisons_llm(init_y, q_comp_ini)
+    if algo == "EUBO":
+        init_y = generate_data_u1(init_X, dim=dim)
+        comparisons = generate_comparisons(init_y, q_comp_ini)
+    if algo == "rand":
+        init_y = generate_data_u1(init_X, dim=dim)
+        comparisons = generate_comparisons(init_y, q_comp_ini)
 
 
-#saving the best value
-best_vals[algo].append([])
-#saving the data
-data[algo] = (init_X, comparisons)
-#surrogate model
-_, models[algo] = init_and_fit_model(init_X, comparisons)
+    #saving the best value
+    best_vals[algo].append([])
+    #saving the data
+    data[algo] = (init_X, comparisons)
+    #surrogate model
+    _, models[algo] = init_and_fit_model(init_X, comparisons)
 
-#evaluation of the initial_data and best value append
-best_next_y = utility1(init_X).max().item()
-best_vals[algo][-1].append(best_next_y)
+    #evaluation of the initial_data and best value append
+    best_next_y = utility1(init_X).max().item()
+    best_vals[algo][-1].append(best_next_y)
 
-model = models[algo]
+    model = models[algo]
 
-#
-if algo == "EUBO-LLM":
-    # create the acquisition function objec
-    acq_func = AnalyticExpectedUtilityOfBestOption(pref_model=model)
-    # optimize and get new observation
-    next_X, acq_val = optimize_acqf(
-    acq_function=acq_func,
-    bounds=bounds,
-    q=q_eubo,
-            num_restarts=NUM_RESTARTS,
-            raw_samples=RAW_SAMPLES,
-    )
-         
-    # update data
-    X, comps = data[algo]
-    X, comps = make_new_data(X, next_X, comps, q_comp_2)
-    data[algo] = (X, comps)
-    
-    # refit models
-     _, models[algo] = init_and_fit_model(X, comps)
-    
-    # record the best observed values so far
-    max_val = utility1(X).max().item()
-    best_vals[algo][-1].append(max_val)
-elif algo == "EUBO":
-    #create the acquisition function object
-    acq_func = AnalyticExpectedUtilityOfBestOption(pref_model=model)
-    # optimize and get new observation
-    next_X, acq_val = optimize_acqf(
-                    acq_function=acq_func,
-                    bounds=bounds,
-                    q=q_eubo,
-                    num_restarts=NUM_RESTARTS,
-                    raw_samples=RAW_SAMPLES,
-                )
-    print(next_X)
+    #
+    if algo == "EUBO-LLM":
+        # create the acquisition function objec
+        acq_func = AnalyticExpectedUtilityOfBestOption(pref_model=model)
+        # optimize and get new observation
+        next_X, acq_val = optimize_acqf(
+        acq_function=acq_func,
+        bounds=bounds,
+        q=q_eubo,
+                num_restarts=NUM_RESTARTS,
+                raw_samples=RAW_SAMPLES,
+        )
+             
         # update data
-    X, comps = data[algo]
-    X, comps = make_new_data_u1(X, next_X, comps, q_comp_2)
-    data[algo] = (X, comps)
+        X, comps = data[algo]
+        X, comps = make_new_data(X, next_X, comps, q_comp_cycle)
+        data[algo] = (X, comps)
+        
+        # refit models
+         _, models[algo] = init_and_fit_model(X, comps)
+        
+        # record the best observed values so far
+        max_val = utility1(X).max().item()
+        best_vals[algo][-1].append(max_val)
+    elif algo == "EUBO":
+        #create the acquisition function object
+        acq_func = AnalyticExpectedUtilityOfBestOption(pref_model=model)
+        # optimize and get new observation
+        next_X, acq_val = optimize_acqf(
+                        acq_function=acq_func,
+                        bounds=bounds,
+                        q=q_eubo,
+                        num_restarts=NUM_RESTARTS,
+                        raw_samples=RAW_SAMPLES,
+                    )
+        print(next_X)
+            # update data
+        X, comps = data[algo]
+        X, comps = make_new_data_u1(X, next_X, comps, q_comp_cycle)
+        data[algo] = (X, comps)
 
-            # refit models
-    _, models[algo] = init_and_fit_model(X, comps)
+                # refit models
+        _, models[algo] = init_and_fit_model(X, comps)
 
-            # record the best observed values so far
-    max_val = utility1(X).max().item()
-    best_vals[algo][-1].append(max_val)
-else:
-    # randomly sample data
-    next_X= ini(q_eubo, dim=dim)
-    print(next_X)
-    # update data
-    X, comps = data[algo]
-    X, comps = make_new_data_u1(X, next_X, comps, q_comp_2)
-    data[algo] = (X, comps)
+                # record the best observed values so far
+        max_val = utility1(X).max().item()
+        best_vals[algo][-1].append(max_val)
+    else:
+        # randomly sample data
+        next_X= ini(q_eubo, dim=dim)
+        print(next_X)
+        # update data
+        X, comps = data[algo]
+        X, comps = make_new_data_u1(X, next_X, comps, q_comp_cycle)
+        data[algo] = (X, comps)
 
-    # refit models
-    _, models[algo] = init_and_fit_model(X, comps)
+        # refit models
+        _, models[algo] = init_and_fit_model(X, comps)
 
-    # record the best observed values so far
-    max_val = utility1(X).max().item()
-    best_vals[algo][-1].append(max_val)
+        # record the best observed values so far
+        max_val = utility1(X).max().item()
+        best_vals[algo][-1].append(max_val)
+
+return best_vals
+
+def run_one_iteration_normal(algo,dim,q_inidata,best_vals):
+
+    #sampler options
+    NUM_RESTARTS = 3
+    RAW_SAMPLES = 512 if not SMOKE_TEST else 8
+
+    q_eubo = 2  # number of points per query
+    q_comp_ini = 10  # number of comparisons per query
+    q_comp_cycle=1 #tow options, one comp
+
+    # initial evals keep the best values after each iteration
+    best_vals = {}  # best observed values
+    for algo in algos:
+        best_vals[algo] = []
+
+    # average over multiple trials
+
+    #seed and dictionaries
+    torch.manual_seed(i)
+    np.random.seed(i)
+    data = {}
+    models = {}
+
+     # X are within the unit cube
+    bounds = torch.stack([torch.zeros(dim), torch.ones(dim)])
+
+     # Create initial data
+    init_X=ini(q_inidata,dim)
+
+    #evaluate utility function and generate comparision, initial part
+
+    if algo == "EUBO-LLM":
+        init_y = generate_data(init_X, dim=dim)
+        #add argument for LLM
+        comparisons = generate_comparisons_llm(init_y, q_comp_ini)
+    if algo == "EUBO":
+        init_y = generate_data_u1(init_X, dim=dim)
+        comparisons = generate_comparisons(init_y, q_comp_ini)
+    if algo == "rand":
+        init_y = generate_data_u1(init_X, dim=dim)
+        comparisons = generate_comparisons(init_y, q_comp_ini)
+
+
+    #saving the best value
+    best_vals[algo].append([])
+    #saving the data
+    data[algo] = (init_X, comparisons)
+    #surrogate model
+    _, models[algo] = init_and_fit_model(init_X, comparisons)
+
+    #evaluation of the initial_data and best value append
+    best_next_y = utility1(init_X).max().item()
+    best_vals[algo][-1].append(best_next_y)
+
+    model = models[algo]
+
+    #
+    if algo == "EUBO-LLM":
+        # create the acquisition function objec
+        acq_func = AnalyticExpectedUtilityOfBestOption(pref_model=model)
+        # optimize and get new observation
+        next_X, acq_val = optimize_acqf(
+        acq_function=acq_func,
+        bounds=bounds,
+        q=q_eubo,
+                num_restarts=NUM_RESTARTS,
+                raw_samples=RAW_SAMPLES,
+        )
+             
+        # update data
+        X, comps = data[algo]
+        X, comps = make_new_data(X, next_X, comps, q_comp_cycle)
+        data[algo] = (X, comps)
+        
+        # refit models
+         _, models[algo] = init_and_fit_model(X, comps)
+        
+        # record the best observed values so far
+        max_val = utility1(X).max().item()
+        best_vals[algo][-1].append(max_val)
+    elif algo == "EUBO":
+        #create the acquisition function object
+        acq_func = AnalyticExpectedUtilityOfBestOption(pref_model=model)
+        # optimize and get new observation
+        next_X, acq_val = optimize_acqf(
+                        acq_function=acq_func,
+                        bounds=bounds,
+                        q=q_eubo,
+                        num_restarts=NUM_RESTARTS,
+                        raw_samples=RAW_SAMPLES,
+                    )
+        print(next_X)
+            # update data
+        X, comps = data[algo]
+        X, comps = make_new_data_u1(X, next_X, comps, q_comp_cycle)
+        data[algo] = (X, comps)
+
+                # refit models
+        _, models[algo] = init_and_fit_model(X, comps)
+
+                # record the best observed values so far
+        max_val = utility1(X).max().item()
+        best_vals[algo][-1].append(max_val)
+    else:
+        # randomly sample data
+        next_X= ini(q_eubo, dim=dim)
+        print(next_X)
+        # update data
+        X, comps = data[algo]
+        X, comps = make_new_data_u1(X, next_X, comps, q_comp_cycle)
+        data[algo] = (X, comps)
+
+        # refit models
+        _, models[algo] = init_and_fit_model(X, comps)
+
+        # record the best observed values so far
+        max_val = utility1(X).max().item()
+        best_vals[algo][-1].append(max_val)
+
+return best_vals
