@@ -4,6 +4,7 @@
 ![reactor](images/reactor_small.jpg) | ![cat](images/chemcat_small.jpg)
 
 **Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
+
 Youtube video:
 
 Reduced slide set for video:
