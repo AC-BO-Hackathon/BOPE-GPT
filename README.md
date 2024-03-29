@@ -6,6 +6,11 @@
 **Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
 # The first steps
 
+Youtube video:
+Reduced slide set for video:
+Full slides by Zartashia Afzal: [Slides]
+App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
+
 **Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective BO**
 
 Fischer-Tropsch Synthesis represents a pivotal process in the field of industrial chemistry, serving as a cornerstone for the production of liquid hydrocarbons from carbon monoxide and hydrogen gases. Developed by German chemists Franz Fischer and Hans Tropsch in the early 1920s, this method provides a versatile pathway for converting syngas—a mixture of hydrogen and carbon monoxide derived from coal, biomass, or natural gas—into a variety of valuable hydrocarbon products, including fuels and alkanes. The process is particularly adopted for its ability to produce clean, sulfur-free fuels, which are crucial in today's efforts towards environmental sustainability and energy security. Through catalytic chemical reactions conducted at high temperatures and pressures, Fischer-Tropsch Synthesis offers a strategic approach to mitigating reliance on crude oil by leveraging alternative carbon sources, thereby playing a critical role in the evolving landscape of global energy.
@@ -94,7 +99,7 @@ The numbers from the model output are entered to prompt as strings with one deci
 
 # An app to rule them all
 
-**Coming soon to your home for every preferential BO enthusiast**
+An app to perform preferential BO optimisation using the LLM pairwise comparison function, shown in the previous plot as EUBO-LLM, was developed by [Ratish Panda](https://github.com/imperorrp), and it's available at https://bope-gpt.vercel.app/
 
 *Miscellaneous*
 
