@@ -73,28 +73,28 @@ Finally we turned to the pairwise comparison by LLM. Basically, we modify the pa
 
 We explored different cases below: ("" means prompt to the LLM, [] indicates objective utility function we tell the EUBO. And we compare the performance of the two results for the optimal values to see if LLM can replace numerical decision)
 1. "The four outputs are equally important, and we want to maximize all of them."
-[obj: maximize sum of y1-y4] (notebook)[/data/preferentialBO_llm_multiplot_correction_case_1.ipynb]
+[obj: maximize sum of y1-y4] [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_1.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/004ce5ac-6570-4f06-bc82-4654b7b9d569)
 
 The optimized sum can reach ~3.1, which is reasonable for the dataset and the model.
 
 2. "We only want to maximize the CO conversion."
-[obj: maximize y1] (notebook)[/data/preferentialBO_llm_multiplot_correction_case_2.ipynb]
+[obj: maximize y1] [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_2.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/fd0c3e85-0c54-46f6-bc67-ecf80c963a73)
 
 The optimized sum can reach ~1, which is the maximal value after MinMax normalization.
   
 3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
-[obj: maximize y1+y2+y3-y4] (notebook)[/data/preferentialBO_llm_multiplot_correction_case_4.ipynb]
+[obj: maximize y1+y2+y3-y4] [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_4.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/55d0946d-c1ba-4d77-87db-a89d7f3227be)
 
 *4. A dual case of the first objective (with typo in prompt)
 
 "The four outputs are equally important, and we want to <mark>minimize</mark> all of them."
-[obj: maximize sum of y1-y4]  (notebook)[/data/preferentialBO_llm_multiplot_correction_case_1_evil_muejeje.ipynb]
+[obj: maximize sum of y1-y4]  [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_1_evil_muejeje.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/45987c4d-8ad3-47e5-b68f-506b0d0c5a58)
 
