@@ -30,11 +30,11 @@ from botorch.optim import optimize_acqf
 import pickle
 
 
-import generate_data,generate_data_u1,init_and_fit_model
-import generate_comparisons_llm
+from utils_model.utils_1 utils_1import generate_data,generate_data_u1,init_and_fit_model
+from utils_model.utils_llm import generate_comparisons_llm
 
 #algos = ["EUBO","EUBO-LLM", "rand"]
-def run_one_iteration_initial(algo,dim,q_inidata):
+def run_one_iteration_initial(algo,dim,q_inidata, prompt=None):
 
     #sampler options
     NUM_RESTARTS = 3
@@ -162,7 +162,7 @@ def run_one_iteration_initial(algo,dim,q_inidata):
 
 return data,best_vals
 
-def run_one_iteration_normal(algo,dim,q_inidata,best_vals,data):
+def run_one_iteration_normal(algo,dim,q_inidata,best_vals,data, prompt=None):
 
     #sampler options
     NUM_RESTARTS = 3
