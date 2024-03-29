@@ -5,11 +5,11 @@
 
 **Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
 
-Youtube video:
+Youtube video: [Video](https://youtu.be/AbRDOdmafB8)
 
-Reduced slide set for video:
+Reduced slide set for video:  [Slides](https://www.canva.com/design/DAGA0QyCi0U/YlztehHrUUn9Pu3aya-Ysg/edit)
 
-Full slides by Zartashia Afzal: [Slides]
+Full slides by Zartashia Afzal: [Slides](https://www.canva.com/design/DAGA0QyCi0U/YlztehHrUUn9Pu3aya-Ysg/edit)
 
 App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
 
