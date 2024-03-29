@@ -146,3 +146,4 @@ Remember to define the seed for random generators when comparing different algor
 `torch.cuda.manual_seed(your_seed)`
 `torch.cuda.manual_seed_all(your_seed)`
 
+# References
