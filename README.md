@@ -102,7 +102,9 @@ The optimized sum can reach ~1, which is the maximal value after MinMax normaliz
 
 In this case, we modified the prompt with a typo, and keep all the other utility & target function as the same with case 1. From the results, we can see that the performance of EUBO-LLM with typo is lower than random. The LLM with typo changes the whole meaning of the prompt, showing the importance of the prompt.
 
-From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
+From the result of the above three cases, we can see that the LLM (EUBO-LLM in the plot) is working very well for the first two cases (similar performance to EUBO/synthetic utility function) and can identify the requirement of the 
+process by changing the prompts. In the third case, the performance is close to Random Exploration, and we hypothetise that the LLM cannot interpret this scenario or understand the utility function from the prompt alone.
+
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
 `Suppose you're managing a Fischer-Tropsch synthesis process, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
