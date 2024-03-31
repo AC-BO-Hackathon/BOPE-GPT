@@ -171,9 +171,9 @@ Remember to define the seed for random generators when comparing different algor
 
 # CRediT statement
 
-**Ricardo Valencia Albornoz**:Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization, Project administration
+**Ricardo Valencia Albornoz**: Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization, Project administration
 
-**Yuxin Shen**:Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Data Curation, Writing - README, Visualization, Project administration
+**Yuxin Shen**: Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Data Curation, Writing - README, Visualization, Project administration
 
 **Sabah Gaznaghi**: Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization
 
