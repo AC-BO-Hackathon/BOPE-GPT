@@ -5,13 +5,15 @@
 
 **Brought to you by Ricardo Valencia Albornoz, Yuxin Shen, Sabah Gaznaghi, Clara Tamura, Ratish Panda, Zartashia Afzal and Raul Astudillo**
 
-Youtube video:
+Youtube video: [Video](https://youtu.be/AbRDOdmafB8)
 
-Reduced slide set for video:
+Reduced slide set for video:  [Slides](https://www.canva.com/design/DAGA5QgbgTA/jyK2A_IGolI2_5zDI2n4EQ/edit)
 
-Full slides by Zartashia Afzal: [Slides]
+Full slides by Zartashia Afzal: [Slides](https://www.canva.com/design/DAGA0QyCi0U/YlztehHrUUn9Pu3aya-Ysg/edit)
 
 App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
+
+**All authors contribute significantly to the project. A CRediT authorship statement is avaiable at the end of the README** 
 
 # The first steps
 
@@ -23,7 +25,7 @@ The Fischer-Tropsch synthesis is a chemical reaction that converts a mixture of 
 
 $$ n CO + (2n+1) H_2 \rightarrow C_nH_{2n+2} + n H_2O $$
 
-The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F<sub>CO</sub>), syngas ratio, temperature and pressure, and four outputs: y1 as the carbon monoxide conversion, y2 as the selectivity towards methane (SCH4), y3 as the selectivity towards paraffins (SC2−C4) and y4 as the selectivity towards light olefins (SC2−C4=).
+The ground truth we use here is the Artificial Neural Network model built from the dataset in the paper (Chakkingal, Anoop, et al., 2022), with four inputs: space-time (W/F<sub>CO</sub>), syngas ratio, temperature and pressure, and four outputs: y1 as the carbon monoxide conversion, y2 as the selectivity towards methane (SCH<sub>4</sub>), y3 as the selectivity towards paraffins (SC<sub>2</sub>−C<sub>4</sub>) and y4 as the selectivity towards light olefins (SC<sub>2</sub>−C<sub>4</sub>=).
 
 > Maximizing all of the four outputs is desirable for this process. However, in reality some of the three products are considered as byproducts, and the ones you care only achieve high selectivity under very intensive conditions, which are not feasible in technical terms or economical terms. Therefore, we can adjust the objective settings in th BO routine and make the optimization problem more adapted to what would be a real situation.
 
@@ -59,7 +61,7 @@ We saw that the single-objective BO work quite well when optimizing the four dif
 
 # Into the preference world
 
-From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task, since it is often hard *in the field* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
+From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task. Since it is often hard *in situ* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
 
 **Decision by a comparison function** 
 
@@ -73,27 +75,34 @@ Finally we turned to the pairwise comparison by LLM. Basically, we modify the pa
 
 We explored different cases below: ("" means prompt to the LLM, [] indicates objective utility function we tell the EUBO. And we compare the performance of the two results for the optimal values to see if LLM can replace numerical decision)
 1. "The four outputs are equally important, and we want to maximize all of them."
-[obj: maximize sum of y1-y4]
+[obj: maximize sum of y1-y4] [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_1.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/004ce5ac-6570-4f06-bc82-4654b7b9d569)
 
+The optimized sum can reach ~3.1, which is reasonable for the dataset and the model.
 
 2. "We only want to maximize the CO conversion."
-[obj: maximize y1]
+[obj: maximize y1] [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_2.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/fd0c3e85-0c54-46f6-bc67-ecf80c963a73)
 
-
+The optimized sum can reach ~1, which is the maximal value after MinMax normalization.
   
 3. "The light olefins (y4) is considered as a negative output and we want to minimize y4 while maximizing the other three objectives (y1-y3)."
-[obj: maximize y1+y2+y3-y4]
+[obj: maximize y1+y2+y3-y4] [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_4.ipynb)
 
 ![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/55d0946d-c1ba-4d77-87db-a89d7f3227be)
 
+*4. A dual case of the first objective (with typo in prompt)
 
+"The four outputs are equally important, and we want to 'minimize' all of them."
+[obj: maximize sum of y1-y4]  [notebook](https://github.com/AC-BO-Hackathon/BOPE-GPT/blob/main/data/preferentialBO_llm_multiplot_correction_case_1_evil_muejeje.ipynb)
+
+![image](https://github.com/AC-BO-Hackathon/BOPE-GPT/assets/113897191/45987c4d-8ad3-47e5-b68f-506b0d0c5a58)
+
+In this case, we modified the prompt with a typo, and keep all the other utility & target function as the same with case 1. From the results, we can see that the performance of EUBO-LLM with typo is lower than random. The LLM with typo changes the whole meaning of the prompt, showing the importance of the prompt.
 
 From the result of the above three cases, we can see that the LLM is working very well and can identify the requirement of the process by changing the prompts.
-
 To understand how the process work behind the scenes, we can have a look to a sample prompt:
 
 `Suppose you're managing a Fischer-Tropsch synthesis process, Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.8 light oleffins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light oleffins. Choose only one option, only answer with 'Option A' or 'Option B'`
@@ -124,6 +133,8 @@ To run the code, we're typically updating a conda/mamba environment that, on the
 
 `pip install tensorflow`
 
+`pip install cohere`
+
 **Seeding**
 Remember to define the seed for random generators when comparing different algorithms:
 
@@ -149,3 +160,13 @@ Remember to define the seed for random generators when comparing different algor
 `torch.cuda.manual_seed_all(your_seed)`
 
 # References
+1. [BoTorch tutorial for Preference BO](https://botorch.org/tutorials/bope).
+2. [BoTorch tutorial for BOPE](https://botorch.org/tutorials/bope).
+3. González J, Dai Z, Damianou A, Lawrence ND. [Preferential Bayesian Optimization](https://proceedings.mlr.press/v70/gonzalez17a). In: Proceedings of the 34th International Conference on Machine Learning. PMLR. pp. 1282–1291.
+4. Lin ZJ, Astudillo R, Frazier P, Bakshy E. [Preference Exploration for Efficient Bayesian Optimization with Multiple Outcomes](https://proceedings.mlr.press/v151/jerry-lin22a). In: Proceedings of The 25th International Conference on Artificial Intelligence and Statistics. PMLR. pp. 4235–4258.
+5. Lozano-Blanco G, Thybaut JW, Surla K, Galtier P, Marin GB. [Single-Event Microkinetic Model for Fischer−Tropsch Synthesis on Iron-Based Catalysts](https://pubs.acs.org/doi/10.1021/ie071587u). Ind Eng Chem Res 2008;47:5879–5891.
+6. Chakkingal A, Janssens P, Poissonnier J, Virginie M, Khodakov AY, et al. [Multi-output machine learning models for kinetic data evaluation : A Fischer–Tropsch synthesis case study](https://www.sciencedirect.com/science/article/pii/S1385894722026754). Chemical Engineering Journal 2022;446:137186.
+7. Qin Z, Jagerman R, Hui K, Zhuang H, Wu J, et al. [Large Language Models are Effective Text Rankers with Pairwise Ranking Prompting](https://arxiv.org/abs/2306.17563). DOI: 10.48550/arXiv.2306.17563.
+8. Balandat M, Karrer B, Jiang DR, Daulton S, Letham B, et al. [BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization. Epub ahead of print 8 December 2020](https://arxiv.org/abs/1910.06403). DOI: 10.48550/arXiv.1910.06403.
+
+# CRediT statement
