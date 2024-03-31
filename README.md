@@ -133,6 +133,8 @@ To run the code, we're typically updating a conda/mamba environment that, on the
 
 `pip install tensorflow`
 
+`pip install cohere`
+
 **Seeding**
 Remember to define the seed for random generators when comparing different algorithms:
 
