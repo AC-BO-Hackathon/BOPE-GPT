@@ -13,7 +13,7 @@ Full slides by Zartashia Afzal: [Slides](https://www.canva.com/design/DAGA0QyCi0
 
 App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
 
-**All authors contribute significantly to the project. A CRediT authorship statement is avaiable at the end of the README** 
+**All authors contribute significantly to the project. A CRediT authorship statement is available at the end of the README** 
 
 # The first steps
 
@@ -171,10 +171,16 @@ Remember to define the seed for random generators when comparing different algor
 
 # CRediT statement
 
-**Ricardo Valencia Albornoz**:
-**Yuxin Shen**:
-**Sabah Gaznaghi**:
-**Clara Tamura**:
-**Ratish Panda**:
-**Zartashia Afzal**: 
-**Raul Astudillo**:
+**Ricardo Valencia Albornoz**: Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization, Project administration
+
+**Yuxin Shen**: Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Data Curation, Writing - README, Visualization, Project administration
+
+**Sabah Gaznaghi**: Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization
+
+**Clara Tamura**: Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization
+
+**Ratish Panda**: Software (app), Validation, Formal analysis, Writing - README, Visualization, Investigation, Resources
+
+**Zartashia Afzal**: Software (presentation), Validation, Formal analysis, Writing - README, Visualization, Investigation, Resources
+
+**Raul Astudillo**: Methodology, Software (notebook), Validation, Formal analysis, Writing - Review & Editing, Supervision
