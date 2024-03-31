@@ -168,4 +168,5 @@ Remember to define the seed for random generators when comparing different algor
 6. Chakkingal A, Janssens P, Poissonnier J, Virginie M, Khodakov AY, et al. [Multi-output machine learning models for kinetic data evaluation : A Fischer–Tropsch synthesis case study](https://www.sciencedirect.com/science/article/pii/S1385894722026754). Chemical Engineering Journal 2022;446:137186.
 7. Qin Z, Jagerman R, Hui K, Zhuang H, Wu J, et al. [Large Language Models are Effective Text Rankers with Pairwise Ranking Prompting](https://arxiv.org/abs/2306.17563). DOI: 10.48550/arXiv.2306.17563.
 8. Balandat M, Karrer B, Jiang DR, Daulton S, Letham B, et al. [BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization. Epub ahead of print 8 December 2020](https://arxiv.org/abs/1910.06403). DOI: 10.48550/arXiv.1910.06403.
- 
+
+# CRediT statement
