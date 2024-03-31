@@ -171,10 +171,16 @@ Remember to define the seed for random generators when comparing different algor
 
 # CRediT statement
 
-**Ricardo Valencia Albornoz**:
-**Yuxin Shen**:
-**Sabah Gaznaghi**:
-**Clara Tamura**:
-**Ratish Panda**:
-**Zartashia Afzal**: 
-**Raul Astudillo**:
+**Ricardo Valencia Albornoz**:Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization, Project administration
+
+**Yuxin Shen**:Conceptualization, Methodology, Software (notebook), Validation, Formal analysis, Data Curation, Writing - README, Visualization, Project administration
+
+**Sabah Gaznaghi**: Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization
+
+**Clara Tamura**: Methodology, Software (notebook), Validation, Formal analysis, Writing - README, Visualization
+
+**Ratish Panda**: Software (app), Validation, Formal analysis, Writing - README, Visualization, Investigation, Resources
+
+**Zartashia Afzal**: Software (presentation), Validation, Formal analysis, Writing - README, Visualization, Investigation, Resources
+
+**Raul Astudillo**: Methodology, Software (notebook), Validation, Formal analysis, Writing - Review & Editing, Supervision
