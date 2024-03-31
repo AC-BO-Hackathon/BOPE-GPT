@@ -13,6 +13,8 @@ Full slides by Zartashia Afzal: [Slides](https://www.canva.com/design/DAGA0QyCi0
 
 App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
 
+**All authors contribute significantly to the project. A CRediT authorship statement is avaiable at the end of the README** 
+
 # The first steps
 
 **Analysing the Fischer-Tropsch dataset from the point of view of classical single and multi-objective BO**
@@ -59,7 +61,7 @@ We saw that the single-objective BO work quite well when optimizing the four dif
 
 # Into the preference world
 
-From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task, since it is often hard *in the field* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
+From the multi-objective BO, we observed that the multi-objective optimization result could be a very hard task. Since it is often hard *in situ* to have the exact utility function over those objectives, it is much easier for people to make pairwise comparisons. Therefore, we introduced a preference setting to the Fischer-Tropsch problem, and expect the LLM to do the pairwise comparison.
 
 **Decision by a comparison function** 
 
