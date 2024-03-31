@@ -170,3 +170,11 @@ Remember to define the seed for random generators when comparing different algor
 8. Balandat M, Karrer B, Jiang DR, Daulton S, Letham B, et al. [BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization. Epub ahead of print 8 December 2020](https://arxiv.org/abs/1910.06403). DOI: 10.48550/arXiv.1910.06403.
 
 # CRediT statement
+
+**Ricardo Valencia Albornoz**:
+**Yuxin Shen**:
+**Sabah Gaznaghi**:
+**Clara Tamura**:
+**Ratish Panda**:
+**Zartashia Afzal**: 
+**Raul Astudillo**:
