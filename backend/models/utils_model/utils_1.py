@@ -126,3 +126,5 @@ def make_new_data_u1(X, next_X, comps, q_comp):
     comps = torch.cat([comps, next_comps + X.shape[-2]])
     X = torch.cat([X, next_X])
     return X, comps
+
+

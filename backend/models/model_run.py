@@ -30,7 +30,7 @@ from botorch.optim import optimize_acqf
 import pickle
 
 
-from utils_model.utils_1 utils_1import generate_data,generate_data_u1,init_and_fit_model
+from utils_model.utils_1 utils_1 import generate_data,generate_data_u1,init_and_fit_model
 from utils_model.utils_llm import generate_comparisons_llm
 
 #algos = ["EUBO","EUBO-LLM", "rand"]
