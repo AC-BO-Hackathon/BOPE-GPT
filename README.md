@@ -13,7 +13,7 @@ Full slides by Zartashia Afzal: [Slides](https://www.canva.com/design/DAGA0QyCi0
 
 App prototype developed by [Ratish Panda](https://github.com/imperorrp): [App](https://bope-gpt.vercel.app/)
 
-**All authors contribute significantly to the project. A CRediT authorship statement is available at the end of the README** 
+**All authors contributed significantly to the project. A CRediT authorship statement is available at the end of the README** 
 
 # The first steps
 
