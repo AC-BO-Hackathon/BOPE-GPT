@@ -31,15 +31,46 @@ import {
 } from "@/components/ui/table"
 
 const Home = () => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log("Sending uploaded file to backend...");
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/upload_dataset/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleFileUpload(event).catch(error => {
+      console.error('Error in handleFileUpload:', error);
+    });
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
             <Label className="px-2" htmlFor="uploadDataset">Upload Dataset</Label>
             <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Input id="upload_dataset" type="file" />
+              <Input id="upload_dataset" type="file" onChange={handleChange} />
             </div>
           </div>
         </div>

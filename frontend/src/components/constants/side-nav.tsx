@@ -2,9 +2,10 @@ import { BookOpenCheck, LayoutDashboard } from "lucide-react";
 import { type NavItem } from "@/types";
 
 
-export const NavItems: NavItem[] = [
+export const NavItems: NavItem[] = []
+/*
   {
-    title: "Dashboard",
+    title: "Dashboard", //"How This Works"
     icon: LayoutDashboard,
     href: "/",
     color: "text-sky-500",

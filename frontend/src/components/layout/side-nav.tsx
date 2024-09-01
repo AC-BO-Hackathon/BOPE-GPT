@@ -123,7 +123,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
           <Accordion
             type="single"
             collapsible
-            className="space-y-2"
+            className="space-y-2 text-sm"
             key={item.title}
             value={openItem}
             onValueChange={setOpenItem}
