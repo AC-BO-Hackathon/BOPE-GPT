@@ -30,7 +30,11 @@ from botorch.optim import optimize_acqf
 import pickle
 
 
+<<<<<<< HEAD
+from utils_model.utils_1 utils_1 import generate_data,generate_data_u1,init_and_fit_model
+=======
 from utils_model.utils_1 import ini, generate_comparisons, make_new_data_u1, make_new_data, utility1, generate_data,generate_data_u1,init_and_fit_model
+>>>>>>> 864031a20db346808232a745d5ba056e9ee6fae8
 from utils_model.utils_llm import generate_comparisons_llm
 
 # setting SEED
