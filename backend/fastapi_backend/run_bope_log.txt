@@ -1,0 +1,242 @@
+run_bope.py run log: 
+
+python run_bope.py
+2024-09-17 03:53:41.147202: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-09-17 03:54:02.179734: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-09-17 03:54:45.632109: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+Starting BOPE process...
+
+ Initializing BOPE...
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 101ms/step
+
+ init_x = tensor([[0.9701, 0.7078, 0.4594, 0.9207],
+        [0.6450, 0.7911, 0.1786, 0.3511],
+        [0.5813, 0.2882, 0.4529, 0.1768],
+        [0.3553, 0.6219, 0.4818, 0.4408],
+        [0.4073, 0.2054, 0.6650, 0.7849]], dtype=torch.float64)
+ init_y = tensor([[0.6950, 0.0609, 0.1733, 0.4252],
+        [0.2257, 0.0160, 0.0404, 0.1604],
+        [0.5455, 0.0232, 0.0744, 0.5537],
+        [0.5987, 0.0483, 0.0969, 0.4962],
+        [0.8323, 0.1199, 0.2431, 0.5944]])
+
+
+ Comp_pairs = [[0 3]
+ [2 4]
+ [1 2]
+ [3 4]
+ [0 2]
+ [1 4]
+ [2 3]
+ [0 4]
+ [0 1]
+ [1 3]]
+
+ LLM Response = text='Option B' generation_id='5cd9593b-41f3-4506-9555-cd2450859a47' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.7 CO conversion, 0.1 methane production, 0.2 paraffins, 0.4 light olefins. Option B: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.5 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='6e30b951-83bb-467d-ba2a-cd1b53a812c4'
+
+ LLM Response = text='Option B' generation_id='f09ed1e7-f854-4436-adda-069bec1b99a9' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.5 CO conversion, 0.0 methane production, 0.1 paraffins, 0.6 light olefins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='e25cbda8-eed9-42ca-9e30-26c542d2da4d'
+
+ LLM Response = text='Option B' generation_id='c114f46a-c3cb-4d71-97a7-0acd3fb19fa4' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.2 CO conversion, 0.0 methane production, 0.0 paraffins, 0.2 light olefins. Option B: regime of 0.5 CO conversion, 0.0 methane production, 0.1 paraffins, 0.6 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='08dbcbe8-c00b-4e96-9399-e2a088879584'
+
+ LLM Response = text='Option B' generation_id='070ab9f0-b3db-4bc7-9e7e-b48d3ee88dfa' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.5 light olefins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='1e6d97b6-b0cf-4a2f-801c-092b0907eab5'
+
+ LLM Response = text='Option B' generation_id='8cf6eae7-e1e1-4a1a-87b5-5598d50e9dc0' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.7 CO conversion, 0.1 methane production, 0.2 paraffins, 0.4 light olefins. Option B: regime of 0.5 CO conversion, 0.0 methane production, 0.1 paraffins, 0.6 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='481a312b-11a5-4027-9280-089a7979e632'
+
+ LLM Response = text='Option B' generation_id='11436ab3-382b-4e1a-963e-f61b496fed76' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.2 CO conversion, 0.0 methane production, 0.0 paraffins, 0.2 light olefins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='a384f8e7-448f-4a90-ade7-d058e8640ace'
+
+ LLM Response = text='Option B' generation_id='0c7c6bff-5580-45fa-a81e-1a25f5ce3aa3' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.5 CO conversion, 0.0 methane production, 0.1 paraffins, 0.6 light olefins. Option B: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.5 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='9f42ebfc-e5e2-4832-8a1c-f0e069b2ef36'
+
+ LLM Response = text='Option B' generation_id='d08d72a9-9ad4-40cc-9e9c-27a1436e1d2a' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.7 CO conversion, 0.1 methane production, 0.2 paraffins, 0.4 light olefins. Option B: regime of 0.8 CO conversion, 0.1 methane production, 0.2 paraffins, 0.6 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='9298e751-3735-488a-a7a9-ace144870d1e'
+
+ LLM Response = text='Option A' generation_id='6d418035-7c39-4814-a84f-ea38acf5ff26' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.7 CO conversion, 0.1 methane production, 0.2 paraffins, 0.4 light olefins. Option B: regime of 0.2 CO conversion, 0.0 methane production, 0.0 paraffins, 0.2 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option A', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='afd4ed68-0e1e-42d3-8813-64649b91371e'
+
+ LLM Response = text='Option B' generation_id='2c2b2265-caec-4e49-b3c5-9433e62cc998' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.2 CO conversion, 0.0 methane production, 0.0 paraffins, 0.2 light olefins. Option B: regime of 0.6 CO conversion, 0.0 methane production, 0.1 paraffins, 0.5 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='17668a08-7a70-4a0f-8345-af43c2a20cb0'
+
+Generated LLM comparisons = tensor([[3, 0],
+        [4, 2],
+        [2, 1],
+        [4, 3],
+        [2, 0],
+        [4, 1],
+        [3, 2],
+        [4, 0],
+        [0, 1],
+        [3, 1]])
+
+ Initialized model.
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 25ms/step
+
+ best_val = tensor([0.8323, 0.1199, 0.2431, 0.5944])
+Initial best values: tensor([0.8323, 0.1199, 0.2431, 0.5944])
+
+ next_X = tensor([[0.4166, 0.3764, 0.7731, 0.6324],
+        [0.3060, 0.1544, 0.5284, 0.8660]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 50ms/step
+
+ Comp_pairs = [[0 1]]
+
+ LLM Response = text='Option A.' generation_id='442bda5e-e127-48b5-b35c-f2c0bc82f99e' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.9 CO conversion, 0.2 methane production, 0.4 paraffins, 0.7 light olefins. Option B: regime of 0.6 CO conversion, 0.1 methane production, 0.1 paraffins, 0.4 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option A.', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=3.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=3.0), warnings=None) response_id='ec8d817f-b01a-4aad-85c5-3a77e4a11d01'
+
+ X, comps = tensor([[0.9701, 0.7078, 0.4594, 0.9207],
+        [0.6450, 0.7911, 0.1786, 0.3511],
+        [0.5813, 0.2882, 0.4529, 0.1768],
+        [0.3553, 0.6219, 0.4818, 0.4408],
+        [0.4073, 0.2054, 0.6650, 0.7849],
+        [0.4166, 0.3764, 0.7731, 0.6324],
+        [0.3060, 0.1544, 0.5284, 0.8660]], dtype=torch.float64), tensor([[3, 0],
+        [4, 2],
+        [2, 1],
+        [4, 3],
+        [2, 0],
+        [4, 1],
+        [3, 2],
+        [4, 0],
+        [0, 1],
+        [3, 1],
+        [5, 6]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 25ms/step
+Iteration 1 best values: tensor([0.8964, 0.2313, 0.3507, 0.7100])
+
+ next_X = tensor([[0.4961, 0.4239, 0.7600, 0.8236],
+        [0.2659, 0.2707, 0.7859, 0.4571]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 18ms/step
+
+ Comp_pairs = [[0 1]]
+
+ LLM Response = text='Option B' generation_id='90b6c68a-b685-4090-ab92-ed16e89fd271' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.9 CO conversion, 0.2 methane production, 0.4 paraffins, 0.7 light olefins. Option B: regime of 0.9 CO conversion, 0.2 methane production, 0.3 paraffins, 0.8 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='b3f61622-5d21-4e3b-81b5-9c9d1b65791f'
+
+ X, comps = tensor([[0.9701, 0.7078, 0.4594, 0.9207],
+        [0.6450, 0.7911, 0.1786, 0.3511],
+        [0.5813, 0.2882, 0.4529, 0.1768],
+        [0.3553, 0.6219, 0.4818, 0.4408],
+        [0.4073, 0.2054, 0.6650, 0.7849],
+        [0.4166, 0.3764, 0.7731, 0.6324],
+        [0.3060, 0.1544, 0.5284, 0.8660],
+        [0.4961, 0.4239, 0.7600, 0.8236],
+        [0.2659, 0.2707, 0.7859, 0.4571]], dtype=torch.float64), tensor([[3, 0],
+        [4, 2],
+        [2, 1],
+        [4, 3],
+        [2, 0],
+        [4, 1],
+        [3, 2],
+        [4, 0],
+        [0, 1],
+        [3, 1],
+        [5, 6],
+        [8, 7]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 21ms/step
+Iteration 2 best values: tensor([0.9292, 0.2346, 0.3926, 0.7646])
+
+ next_X = tensor([[0.1740, 0.4286, 0.7725, 0.5326],
+        [0.4248, 0.0448, 0.8569, 0.4590]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 22ms/step
+
+ Comp_pairs = [[0 1]]
+
+ LLM Response = text='Option B' generation_id='1eceeb79-7aba-4308-8ad3-92225d4dc71b' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.9 CO conversion, 0.2 methane production, 0.3 paraffins, 0.7 light olefins. Option B: regime of 0.9 CO conversion, 0.2 methane production, 0.4 paraffins, 0.8 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='f86c6d52-d960-4512-886a-e140a4692a89'
+
+ X, comps = tensor([[0.9701, 0.7078, 0.4594, 0.9207],
+        [0.6450, 0.7911, 0.1786, 0.3511],
+        [0.5813, 0.2882, 0.4529, 0.1768],
+        [0.3553, 0.6219, 0.4818, 0.4408],
+        [0.4073, 0.2054, 0.6650, 0.7849],
+        [0.4166, 0.3764, 0.7731, 0.6324],
+        [0.3060, 0.1544, 0.5284, 0.8660],
+        [0.4961, 0.4239, 0.7600, 0.8236],
+        [0.2659, 0.2707, 0.7859, 0.4571],
+        [0.1740, 0.4286, 0.7725, 0.5326],
+        [0.4248, 0.0448, 0.8569, 0.4590]], dtype=torch.float64), tensor([[ 3,  0],
+        [ 4,  2],
+        [ 2,  1],
+        [ 4,  3],
+        [ 2,  0],
+        [ 4,  1],
+        [ 3,  2],
+        [ 4,  0],
+        [ 0,  1],
+        [ 3,  1],
+        [ 5,  6],
+        [ 8,  7],
+        [10,  9]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 23ms/step
+Iteration 3 best values: tensor([0.9292, 0.2411, 0.3926, 0.7936])
+
+ next_X = tensor([[0.3514, 0.0000, 0.7745, 0.5194],
+        [0.4627, 0.2558, 1.0000, 0.3145]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 30ms/step
+
+ Comp_pairs = [[0 1]]
+
+ LLM Response = text='Option B' generation_id='6d4ca0eb-59ca-4c16-b349-0cc34a2f5850' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.9 CO conversion, 0.1 methane production, 0.3 paraffins, 0.7 light olefins. Option B: regime of 0.9 CO conversion, 0.5 methane production, 0.4 paraffins, 0.8 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='656071aa-ca61-4bd5-9728-3b65ade101ca'
+
+ X, comps = tensor([[0.9701, 0.7078, 0.4594, 0.9207],
+        [0.6450, 0.7911, 0.1786, 0.3511],
+        [0.5813, 0.2882, 0.4529, 0.1768],
+        [0.3553, 0.6219, 0.4818, 0.4408],
+        [0.4073, 0.2054, 0.6650, 0.7849],
+        [0.4166, 0.3764, 0.7731, 0.6324],
+        [0.3060, 0.1544, 0.5284, 0.8660],
+        [0.4961, 0.4239, 0.7600, 0.8236],
+        [0.2659, 0.2707, 0.7859, 0.4571],
+        [0.1740, 0.4286, 0.7725, 0.5326],
+        [0.4248, 0.0448, 0.8569, 0.4590],
+        [0.3514, 0.0000, 0.7745, 0.5194],
+        [0.4627, 0.2558, 1.0000, 0.3145]], dtype=torch.float64), tensor([[ 3,  0],
+        [ 4,  2],
+        [ 2,  1],
+        [ 4,  3],
+        [ 2,  0],
+        [ 4,  1],
+        [ 3,  2],
+        [ 4,  0],
+        [ 0,  1],
+        [ 3,  1],
+        [ 5,  6],
+        [ 8,  7],
+        [10,  9],
+        [12, 11]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 18ms/step
+Iteration 4 best values: tensor([0.9292, 0.5390, 0.3926, 0.7936])
+
+ next_X = tensor([[0.3329, 0.0184, 1.0000, 0.0000],
+        [0.4739, 0.2560, 1.0000, 0.4673]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 22ms/step
+
+ Comp_pairs = [[0 1]]
+
+ LLM Response = text='Option B' generation_id='566c50be-66c1-4690-a122-aa96794f6700' citations=None documents=None is_search_required=None search_queries=None search_results=None finish_reason='COMPLETE' tool_calls=None chat_history=[Message_User(role='USER', message="Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of 0.5 CO conversion, 0.6 methane production, 0.1 paraffins, 1.0 light olefins. Option B: regime of 0.9 CO conversion, 0.5 methane production, 0.5 paraffins, 0.8 light olefins. Choose only one option, only answer with 'Option A' or 'Option B'", tool_calls=None), Message_Chatbot(role='CHATBOT', message='Option B', tool_calls=None)] prompt=None meta=ApiMeta(api_version=ApiMetaApiVersion(version='1', is_deprecated=None, is_experimental=None), billed_units=ApiMetaBilledUnits(input_tokens=118.0, output_tokens=2.0, search_units=None, classifications=None), tokens=ApiMetaTokens(input_tokens=324.0, output_tokens=2.0), warnings=None) response_id='65b56393-841b-4727-9c27-795d46dbbd2c'
+
+ X, comps = tensor([[0.9701, 0.7078, 0.4594, 0.9207],
+        [0.6450, 0.7911, 0.1786, 0.3511],
+        [0.5813, 0.2882, 0.4529, 0.1768],
+        [0.3553, 0.6219, 0.4818, 0.4408],
+        [0.4073, 0.2054, 0.6650, 0.7849],
+        [0.4166, 0.3764, 0.7731, 0.6324],
+        [0.3060, 0.1544, 0.5284, 0.8660],
+        [0.4961, 0.4239, 0.7600, 0.8236],
+        [0.2659, 0.2707, 0.7859, 0.4571],
+        [0.1740, 0.4286, 0.7725, 0.5326],
+        [0.4248, 0.0448, 0.8569, 0.4590],
+        [0.3514, 0.0000, 0.7745, 0.5194],
+        [0.4627, 0.2558, 1.0000, 0.3145],
+        [0.3329, 0.0184, 1.0000, 0.0000],
+        [0.4739, 0.2560, 1.0000, 0.4673]], dtype=torch.float64), tensor([[ 3,  0],
+        [ 4,  2],
+        [ 2,  1],
+        [ 4,  3],
+        [ 2,  0],
+        [ 4,  1],
+        [ 3,  2],
+        [ 4,  0],
+        [ 0,  1],
+        [ 3,  1],
+        [ 5,  6],
+        [ 8,  7],
+        [10,  9],
+        [12, 11],
+        [14, 13]])
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 24ms/step
+Iteration 5 best values: tensor([0.9292, 0.5593, 0.5001, 0.9784])

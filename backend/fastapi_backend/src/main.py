@@ -10,6 +10,7 @@ from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 # | CONFIGURING | ----------------------------------------
 
@@ -40,14 +41,26 @@ def get_database():
     return client
 
 
+# def do_something_with_db():
+
+
 def save_csv_to_db(collection, df: pd.DataFrame) -> str:
     # Convert the DataFrame to a dictionary with 'index' orientation
     data_dict = df.to_dict("records")
     # Insert the dictionary as a single document
-    result = collection.insert_one({"data": data_dict})
+    result = collection.insert_one(
+        {"data": data_dict, "uploaded_at": datetime.now(datetime.UTC)}
+    )  # To Add: User ID of user that uploaded this
     # Return the ID of the dataset
     logging.info(f"\n New csv saved as document id: {result.inserted_id}")
     return str(result.inserted_id)
+
+
+def get_latest_dataset_from_db():
+    collection = app.mongodb["datasets"]
+    # Get the latest dataset from MongoDB
+    dataset = collection.find_one(sort=[("uploaded_at", -1)])
+    return dataset
 
 
 # | BACKEND API ENDPOINTS |--------------------------------------------------------------
@@ -124,7 +137,6 @@ async def upload_dataset(file: UploadFile = File(...)):
 
 # | WIP Endpoints |--------------------------------------------------------------------------------------
 
-
 """
 @app.post("/initialize-optimization/", response_model=OptimizationInitResponse)
 async def initialize_optimization(
@@ -136,7 +148,7 @@ async def initialize_optimization(
     # Initialize the optimization with the given dataset ID
     result = run_optimization(
         db=app.mongodb,
-        dataset_id=dataset_id,  # figure out a way to get dataset id from client- via cookies or authentication?
+        #dataset_id=dataset_id,  # figure out a way to get dataset id from client- via cookies or authentication? 
         num_inputs=num_inputs,
         num_initial_samples=num_initial_samples,
         num_samples_per_batch=num_samples_per_batch,

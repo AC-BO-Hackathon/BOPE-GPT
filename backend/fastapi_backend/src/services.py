@@ -5,21 +5,22 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
 import pandas as pd
-import os 
-from dotenv import load_dotenv()
+import os
+
+# from dotenv import load_dotenv()
 
 # WIP FILE (SEE README)
 
-load_dotenv()
+# load_dotenv()
 
 
 def get_database():
     # MongoDB Atlas connection string
     uri = os.getenv("MONGODB_URI", "your_mongodb_connection_string_here")
     # client = MongoClient(uri)
-    client = MongoClient(uri, server_api=ServerApi('1'))
+    client = MongoClient(uri, server_api=ServerApi("1"))
     try:
-        client.admin.command('ping')
+        client.admin.command("ping")
         print("Pinged your deployment. You successfully connected to MongoDB!")
     except Exception as e:
         print(e)
