@@ -98,8 +98,12 @@ def init_and_fit_model(X, comp):
 def make_new_data(X, next_X, comps, q_comp):
     next_X = next_X.to(X)
     x_2 = tf.convert_to_tensor(next_X, dtype=tf.float32)
-    next_y = utility(x_2)
-    next_comps = generate_comparisons_llm(next_y, n_comp=q_comp)
+    next_y = utility(
+        x_2
+    )  # outputs for the inputs chosen by acquistion function are generated via the ground truth model
+    next_comps = generate_comparisons_llm(
+        next_y, n_comp=q_comp
+    )  # llm compares the two outputs and rearranges them in the order of preference
     comps = torch.cat([comps, next_comps + X.shape[-2]])
     X = torch.cat([X, next_X])
     return X, comps
@@ -144,19 +148,23 @@ def run_next_iteration(state, q_eubo=2, q_comp_cycle=1):
     next_X, _ = optimize_acqf(
         acq_function=acq_func,
         bounds=state["bounds"],
-        q=q_eubo,
+        q=q_eubo,  # number of new points to suggest - 2 (a pair, for a pairwise comparison by the LLM)
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
     )
 
-    print(f"\n next_X = {next_X}")
+    print(
+        f"\n next_X = {next_X}"
+    )  # next input values to query outputs of (via the utility function with the model representing the dataset)
 
-    # Use LLM for comparisons
+    # New data is generated and comparisons are made via LLM
     X, comps = make_new_data(state["X"], next_X, state["comparisons"], q_comp_cycle)
 
-    print(f"\n X, comps = {X}, {comps}")
+    print(
+        f"\n X, comps = {X}, {comps}"
+    )  # list of total inputs (in order), list of preference of pairs
 
-    _, model = init_and_fit_model(X, comps)
+    _, model = init_and_fit_model(X, comps)  # model is fit with updated data
 
     current_best = utility(X).max(dim=0).values
     state["best_val"] = torch.max(state["best_val"], current_best)

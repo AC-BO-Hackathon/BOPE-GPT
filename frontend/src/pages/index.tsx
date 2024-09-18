@@ -30,6 +30,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+// Interface for the successful response from /upload_dataset/
+export interface UploadDatasetSuccessResponse {
+  message: string;
+  dataset_id: string;
+}
+
 const Home = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -49,7 +55,7 @@ const Home = () => {
         throw new Error('Failed to upload file');
       }
 
-      const result = await response.json();
+      const result = await response.json() as UploadDatasetSuccessResponse;
       console.log('File uploaded successfully:', result);
     } catch (error) {
       console.error('Error uploading file:', error);
