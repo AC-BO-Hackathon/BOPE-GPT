@@ -1,1 +1,2 @@
 MONGODB_URI = "Enter MongoDB Atlas URI Here"
+COHERE_API_KEY = "Enter Cohere API Key here"

@@ -1,0 +1,14 @@
+aiofiles==24.1.0
+botorch==0.12.0
+cohere==5.9.4
+fastapi[standard]==0.115.0
+keras==3.5.0
+motor==3.6.0
+numpy==1.26.4
+pandas==1.5.3
+pydantic==2.9.2
+pymongo==4.9.1
+python-dotenv==1.0.1
+tensorflow==2.17.0
+torch==2.4.1
+uvicorn==0.30.6

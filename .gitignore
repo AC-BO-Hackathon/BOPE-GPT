@@ -1,3 +1,5 @@
 .vercel
 .env 
-.log
+*.log
+*.pyc
+__pycache__/
