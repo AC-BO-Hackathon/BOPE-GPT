@@ -59,16 +59,20 @@ async def get_database():
 # Pydantic models for request validation
 class InitializeBOPERequest(BaseModel):
     llm_prompt: str = "Enter a prompt here"  # ""
+    comparison_explanations: bool = False
     num_inputs: int = 4  # 4
     num_initial_samples: int = 5  # 5
     num_initial_comparisons: int = 10  # 10
+    enable_flexible_prompt: bool = False
+    enable_llm_explanations: bool = False
     state_id: str = (
         "Insert whatever state ID received after hitting the `upload_dataset` endpoint"
     )
 
 
 class RunNextIterationRequest(BaseModel):
-    prompt: str
+    llm_prompt: str
+    comparison_explanations: bool = False
     state_id: str
 
 
@@ -169,12 +173,14 @@ async def get_state(state_id):
 async def update_bope_state(state_id, bope_state):
     collection = app.mongodb.bope_states
     serialized_state = {
+        "iteration": bope_state["iteration"],
         "X": bope_state["X"].tolist(),
         "comparisons": bope_state["comparisons"].tolist(),
         "best_val": bope_state["best_val"].tolist(),
         "input_bounds": [
             b.tolist() for b in bope_state["input_bounds"]
         ],  # holds bounds for input columns only
+        "input_columns": bope_state["input_columns"],
         "updated_at": datetime.now(timezone.utc),
     }
     await collection.update_one(
@@ -190,12 +196,14 @@ async def retrieve_bope_state(state_id):
 
     bope_state = state_doc["bope_state"]
     state = {
+        "iteration": bope_state["iteration"],
         "X": torch.tensor(bope_state["X"]),
         "comparisons": torch.tensor(bope_state["comparisons"]),
         "best_val": torch.tensor(bope_state["best_val"]),
         "input_bounds": torch.stack(
             [torch.tensor(b) for b in bope_state["input_bounds"]]
         ),  # holds bounds for input columns only
+        "input_columns": bope_state["input_columns"],
         "model": None,  # We'll need to reconstruct the model
     }
     return state
@@ -221,17 +229,23 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
         bounds = state.get("bounds")
         print(f"\n bounds = {bounds}")
 
-        bope_state = await initialize_bope(dim, q_inidata, q_comp_ini, bounds)
+        column_names = state.get("column_names")
+
+        bope_state = await initialize_bope(
+            dim, q_inidata, q_comp_ini, bounds, column_names
+        )
 
         # Update the state in MongoDB
         await update_bope_state(request.state_id, bope_state)
 
         # Convert torch tensors to lists for JSON serialization
         response_state = {
+            "iteration": bope_state["iteration"],
             "X": bope_state["X"].tolist(),
             "comparisons": bope_state["comparisons"].tolist(),
             "best_val": bope_state["best_val"].tolist(),
             "input_bounds": [b.tolist() for b in bope_state["input_bounds"]],
+            "input_columns": bope_state["input_columns"],
         }
 
         return JSONResponse(
@@ -271,6 +285,7 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 
         # Convert torch tensors to lists for JSON serialization
         response_state = {
+            "iteration": bope_state["iteration"],
             "X": bope_state["X"].tolist(),
             "comparisons": bope_state["comparisons"].tolist(),
             "best_val": bope_state["best_val"].tolist(),

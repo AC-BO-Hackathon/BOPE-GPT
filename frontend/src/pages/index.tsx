@@ -1,4 +1,5 @@
 import React from "react";
+import { useBopeStore } from "../hooks/bopeStore";
 
 import {
   CardHeader,
@@ -17,6 +18,7 @@ import { RecentPairwiseComparisonsTable } from "@/components/dashboard/recent-pa
 import { PairwiseComparisonsTable } from "@/components/dashboard/pairwise-comparisons";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
 
 //getting ui components for table
 import {
@@ -29,14 +31,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { string } from "zod";
 
 // Interface for the successful response from /upload_dataset/
 export interface UploadDatasetSuccessResponse {
   message: string;
   dataset_id: string;
+  state_id: string;
+  column_names: string[];
 }
 
 const Home = () => {
+  const { visualizationData, uploadedDatasetData, setStateId, setUploadedDatasetData } = useBopeStore();
+
+  const iterationNumber = visualizationData?.bope_state.iteration || 0;
+  const data_points = visualizationData?.bope_state.X.length || 0;
+  const totalComparisonsMade = visualizationData?.bope_state.comparisons.length || 0;
+  const bestVals = visualizationData?.bope_state.best_val || [];
+  const input_columns = visualizationData?.bope_state.input_columns || [];
+  // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
+  const is_bope_initialized = visualizationData !== null;
+  const all_columns = uploadedDatasetData?.column_names || []; 
+
+  const { toast } = useToast();  
+
+  const testToast = () => {
+    console.log("Attempting to show toast");
+    toast({
+      title: "Test Toast",
+      description: "This is a test toast message.",
+    });
+    console.log("Toast function called");
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -46,7 +73,11 @@ const Home = () => {
     console.log("Sending uploaded file to backend...");
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/upload_dataset/', {
+      const backendUrl = process.env.NEXT_PUBLIC_LOCAL_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error('Backend URL is not defined');
+      }
+      const response = await fetch(`${backendUrl}/upload_dataset/`, {
         method: 'POST',
         body: formData,
       });
@@ -56,9 +87,29 @@ const Home = () => {
       }
 
       const result = await response.json() as UploadDatasetSuccessResponse;
+
       console.log('File uploaded successfully:', result);
+
+      toast({
+        title: "Form Submitted",
+        description: "Your form has been successfully submitted!",
+      });
+
+      // Save state_id to Zustand store
+      setStateId(result.state_id);
+
+      // Save `upload_dataset` api call response to Zustand store 
+      setUploadedDatasetData(result);
+
+      console.log(`State_id saved: ${result.state_id}`)
     } catch (error) {
       console.error('Error uploading file:', error);
+
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your file. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -79,12 +130,13 @@ const Home = () => {
               <Input id="upload_dataset" type="file" onChange={handleChange} />
             </div>
           </div>
+          <Button onClick={testToast}>Test Toast</Button>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analysis">
-              More Analysis
+            <TabsTrigger value="visualization">
+              Visualizations
             </TabsTrigger>
             <TabsTrigger value="comparisons">
               Pairwise Comparisons
@@ -96,7 +148,7 @@ const Home = () => {
               About BOPE-GPT
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="analysis">
+          <TabsContent value="visualization">
             <ParetoFrontsVisualization />
           </TabsContent>
           <TabsContent value="comparisons" className="space-y-4">
@@ -115,7 +167,51 @@ const Home = () => {
             </div>
           </TabsContent>
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {is_bope_initialized? (
+                      "Input Attributes"
+                    ) : (
+                      "All Dataset Attributes"
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {is_bope_initialized? (
+                    <div className="text-xs font-bold">
+                      <ul className="list-disc py-2 pl-5">
+                        {input_columns.map((val, index) => (
+                          <li key={index}>{val}
+                          </li>
+                        ))}
+                      </ul> 
+                    </div>
+                  ) : (
+                    all_columns.length > 0? (
+                      <div className="text-xs font-bold">
+                        <ul className="list-disc py-2 pl-5">
+                          {all_columns.map((val, index) => (
+                            <li key={index}>{val}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="text-xs font-normal py-2 text-muted-foreground">
+                          Subselect input features from these in the initialization menu
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-2xl font-bold">N/A</div>
+                        <div className="text-xs py-2 text-muted-foreground">
+                          No Dataset Detected
+                        </div>
+                      </div>
+                    )
+                  )}
+                </CardContent>
+              </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -123,10 +219,45 @@ const Home = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">32</div>
-                  <p className="text-xs text-muted-foreground">
-                    Completed in XYZ seconds
-                  </p>
+                  {is_bope_initialized? (
+                    <div>
+                    <div className="text-2xl font-bold">{iterationNumber}</div>
+                    <p className="text-xs py-2 text-muted-foreground">
+                      Completed in XYZ seconds
+                    </p>
+                    </div>
+                  ) : (
+                    <div>
+                        <div className="text-2xl font-bold">0</div>
+                        <div className="text-xs py-2 text-muted-foreground">
+                          No Model Initialized
+                        </div>
+                      </div>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Data Points in Model 
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                {is_bope_initialized? (
+                  <div>
+                    <div className="text-2xl font-bold">{data_points}</div>
+                    <p className="text-xs py-2 text-muted-foreground">
+                      Each iteration adds a pair (2)
+                    </p>
+                  </div>
+                  ) : (
+                    <div>
+                      <div className="text-xl font-bold">N/A</div>
+                      <p className="text-xs py-2 text-muted-foreground">
+                        No Model Initialized
+                      </p>
+                  </div>
+                  )}
                 </CardContent>
               </Card>
               <Card>
@@ -136,59 +267,52 @@ const Home = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">64</div>
-                  <p className="text-xs text-muted-foreground">
-                    Abcd...
-                  </p>
+                  {is_bope_initialized? (
+                    <div>
+                      <div className="text-2xl font-bold">{totalComparisonsMade}</div>
+                      <p className="text-xs py-2 text-muted-foreground">
+                        Each Iteration adds 1 
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-xl font-bold">N/A</div>
+                      <p className="text-xs py-2 text-muted-foreground">
+                        No Model Initialized
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Progress Placeholder</CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <rect width="20" height="14" x="2" y="5" rx="2" />
-                    <path d="M2 10h20" />
-                  </svg>
+                  <CardTitle className="text-sm font-medium">Best Output Values</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
-                  <p className="text-xs text-muted-foreground">
+                  {bestVals.length > 0 ? (
+                    <div className="text-xs font-bold">
+                      <ul className="list-disc pl-5">
+                        {bestVals.map((val, index) => (
+                          <li key={index}>{val}
+                            <span className="text-sm text-muted-foreground">
+                            {` (${input_columns[index] || ''})`}
+                          </span>
+                          </li>
+                        ))}
+                      </ul> 
+                    </div>
+                    ) : (
+                      <div>
+                        <div className="text-xl font-bold">N/A</div>
+                        <div className="text-xs py-2 text-muted-foreground py-2">
+                          No model initialized
+                        </div>
+                      </div>
+                    )
+                  }
+                  {/*<p className="text-xs text-muted-foreground">
                     +19% 
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Progress Placeholder
-                  </CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                  </svg>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
-                  <p className="text-xs text-muted-foreground">
-                    +201 since last hour
-                  </p>
+                  </p>*/}
                 </CardContent>
               </Card>
             </div>

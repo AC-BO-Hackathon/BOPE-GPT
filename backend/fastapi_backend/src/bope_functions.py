@@ -106,7 +106,7 @@ async def make_new_data(X, next_X, comps, q_comp, fischer_model):
     return X, comps
 
 
-async def initialize_bope(dim, q_inidata, q_comp_ini, bounds):
+async def initialize_bope(dim, q_inidata, q_comp_ini, bounds, column_names):
     print(f"\n Initializing BOPE...")
     torch.manual_seed(0)
     np.random.seed(0)
@@ -139,12 +139,16 @@ async def initialize_bope(dim, q_inidata, q_comp_ini, bounds):
 
     print(f"\n best_val = {best_val}")
 
+    input_columns = column_names[:dim]
+
     return {
+        "iteration": 1,  # initialization iteration
         "X": init_X,
         "comparisons": comparisons,
         "model": model,
         "best_val": best_val,
         "input_bounds": input_bounds,
+        "input_columns": input_columns,
     }
 
 
@@ -177,6 +181,7 @@ async def run_next_iteration(state, q_eubo=2, q_comp_cycle=1):
 
     state.update(
         {
+            "iteration": state["iteration"] + 1,
             "X": X,
             "comparisons": comps,
             "model": model,
