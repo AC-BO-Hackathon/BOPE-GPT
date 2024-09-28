@@ -13,6 +13,7 @@ import torch
 import json
 from pydantic import BaseModel
 from bson import ObjectId
+import time
 
 # Import BOPE-related functions
 from bope_functions import initialize_bope, run_next_iteration
@@ -73,6 +74,7 @@ class InitializeBOPERequest(BaseModel):
 class RunNextIterationRequest(BaseModel):
     llm_prompt: str
     comparison_explanations: bool = False
+    enable_flexible_prompt: bool = False
     state_id: str
 
 
@@ -170,7 +172,7 @@ async def get_state(state_id):
 
 
 # handlers for bope_state (a subset of overall state)
-async def update_bope_state(state_id, bope_state):
+async def update_bope_state(state_id, bope_state, iteration_duration):
     collection = app.mongodb.bope_states
     serialized_state = {
         "iteration": bope_state["iteration"],
@@ -181,6 +183,7 @@ async def update_bope_state(state_id, bope_state):
             b.tolist() for b in bope_state["input_bounds"]
         ],  # holds bounds for input columns only
         "input_columns": bope_state["input_columns"],
+        "last_iteration_duration": iteration_duration,
         "updated_at": datetime.now(timezone.utc),
     }
     await collection.update_one(
@@ -212,6 +215,7 @@ async def retrieve_bope_state(state_id):
 @app.post("/initialize_bope/")
 async def initialize_bope_endpoint(request: InitializeBOPERequest):
     try:
+        start_time = time.time()
         dim = request.num_inputs
         q_inidata = request.num_initial_samples
         q_comp_ini = request.num_initial_comparisons
@@ -234,9 +238,11 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
         bope_state = await initialize_bope(
             dim, q_inidata, q_comp_ini, bounds, column_names
         )
+        end_time = time.time()
+        iteration_duration = end_time - start_time
 
         # Update the state in MongoDB
-        await update_bope_state(request.state_id, bope_state)
+        await update_bope_state(request.state_id, bope_state, iteration_duration)
 
         # Convert torch tensors to lists for JSON serialization
         response_state = {
@@ -246,7 +252,12 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
             "best_val": bope_state["best_val"].tolist(),
             "input_bounds": [b.tolist() for b in bope_state["input_bounds"]],
             "input_columns": bope_state["input_columns"],
+            "iteration_duration": iteration_duration,
         }
+
+        logging.info(
+            f'State {request.state_id} \nIteration {bope_state["iteration"]} details: {json.dumps(response_state, indent=2)}'
+        )
 
         return JSONResponse(
             content={
@@ -265,6 +276,7 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
 @app.post("/run_next_iteration/")
 async def run_next_iteration_endpoint(request: RunNextIterationRequest):
     try:
+        start_time = time.time()
         # Retrieve the state from MongoDB
         bope_state = await retrieve_bope_state(request.state_id)
         if bope_state is None:
@@ -279,9 +291,11 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 
         # Run the next iteration
         bope_state = await run_next_iteration(bope_state)
+        end_time = time.time()
+        iteration_duration = end_time - start_time
 
         # Update the state in MongoDB
-        await update_bope_state(request.state_id, bope_state)
+        await update_bope_state(request.state_id, bope_state, iteration_duration)
 
         # Convert torch tensors to lists for JSON serialization
         response_state = {
@@ -289,12 +303,19 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
             "X": bope_state["X"].tolist(),
             "comparisons": bope_state["comparisons"].tolist(),
             "best_val": bope_state["best_val"].tolist(),
+            "input_bounds": [b.tolist() for b in bope_state["input_bounds"]],
+            "input_columns": bope_state["input_columns"],
+            "iteration_duration": iteration_duration,
         }
+
+        logging.info(
+            f'State {request.state_id} \nIteration {bope_state["iteration"]} details: {json.dumps(response_state, indent=2)}'
+        )
 
         return JSONResponse(
             content={
                 "message": "Next iteration completed successfully",
-                "state": response_state,
+                "bope_state": response_state,
                 "state_id": request.state_id,
             }
         )

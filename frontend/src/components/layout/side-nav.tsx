@@ -39,29 +39,37 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { ConstructionIcon } from "lucide-react";
 //import { Input } from "postcss";
 
+import type { InitializeBopeResponse, IterationBopeResponse } from '../../hooks/bopeStore';
+
 interface SideNavProps {
     items: NavItem[];
     setOpen?: (open: boolean) => void;
     className?: string;
 }
 
-interface BopeState {
-  iteration: number;
-  X: number[][];
-  comparisons: number[][];
-  best_val: number[];
-  input_bounds: number[][];
-  input_columns: string[];
-}
+const NextIterationFormSchema = z.object({
+  llm_prompt: z
+    .string().optional(),
+    /*.min(10, {
+      message: "Prompt must be at least 10 characters.",
+    })
+    .max(200, {
+      message: "Prompt must not be longer than 200 characters.",
+    }),*/
+  enable_flexible_prompt: z
+    .union([z.boolean(), z.number()])
+    .transform((val) => Boolean(val))
+    .default(false)
+    .optional(),
+  enable_llm_explanations: z
+    .union([z.boolean(), z.number()])
+    .transform((val) => Boolean(val))
+    .default(false)
+    .optional(),
+})
 
-interface InitializeBopeResponse {
-  message: string;
-  bope_state: BopeState;
-  state_id: string;
-}
-
-const FormSchema = z.object({
-  prompt: z
+const InitializationFormSchema = z.object({
+  llm_prompt: z
     .string()
     .min(10, {
       message: "Prompt must be at least 10 characters.",
@@ -108,7 +116,7 @@ const FormSchema = z.object({
 
 
 export function SideNav({ items, setOpen, className }: SideNavProps) {
-    const { stateId, visualizationData, setVisualizationData } = useBopeStore();
+    const { stateId, visualizationData, loading, setLoading, setVisualizationData } = useBopeStore();
     const path = usePathname();
     const { isOpen } = useSidebar();
     const [openItem, setOpenItem] = useState("");
@@ -117,6 +125,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
 
     // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
     const is_bope_initialized = visualizationData !== null;
+    console.log(visualizationData);
 
     useEffect(() => {
         if (isOpen) {
@@ -127,12 +136,18 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         }
     }, [isOpen]);
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-      resolver: zodResolver(FormSchema),
+    const form = useForm<z.infer<typeof InitializationFormSchema>>({
+      resolver: zodResolver(InitializationFormSchema),
     })
-   
-    async function onInitializationSubmit(data: z.infer<typeof FormSchema>){
+
+    const IterationForm = useForm<z.infer<typeof NextIterationFormSchema>>({
+      resolver: zodResolver(NextIterationFormSchema),
+    })
+
+    async function onNextIterationSubmit(data: z.infer<typeof NextIterationFormSchema>){
+      console.log('onNextIterationSubmit called');
       console.log(data);
+      setLoading(true);
       toast({
         title: "You submitted the following values:",
         description: (
@@ -142,10 +157,65 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         ),
         duration: 5000,
       })
-      form.setValue('prompt', '');
-      form.setValue('num_inputs', 4);
-      form.setValue('num_initial_samples', 5);
-      form.setValue('num_initial_comparisons', 10);
+      IterationForm.setValue('llm_prompt', '');
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_LOCAL_BACKEND_URL;
+        if (!backendUrl) {
+          throw new Error('Backend URL is not defined');
+        }
+        const response = await fetch(`${backendUrl}/run_next_iteration/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...data, state_id: stateId }),
+        });
+  
+        if (!response.ok) {
+          //throw new Error('Failed to process data');
+          const errorData = await response.json();
+          console.error('Error response from server:', errorData);
+          throw new Error(`Failed to process data: ${JSON.stringify(errorData)}`);
+    
+        }
+  
+        const result: IterationBopeResponse = await response.json() as IterationBopeResponse;
+        setVisualizationData(result);
+        console.log(`IterationBopeResponse: ${JSON.stringify(result, null, 2)}`);
+  
+        toast({
+          title: "Data processed successfully",
+          description: "Visualization data has been updated",
+          duration: 5000,
+        });
+      } catch (error) {
+        console.error('Error processing data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to process data",
+          duration: 5000,
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+   
+    async function onInitializationSubmit(data: z.infer<typeof InitializationFormSchema>){
+      console.log(data);
+      setLoading(true);
+      toast({
+        title: "You submitted the following values:",
+        description: (
+          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-black">{JSON.stringify(data, null, 2)}</code>
+          </pre>
+        ),
+        duration: 5000,
+      })
+      form.setValue('llm_prompt', '');
+      form.setValue('num_inputs', 0);
+      form.setValue('num_initial_samples', 0);
+      form.setValue('num_initial_comparisons', 0);
 
       try {
         const backendUrl = process.env.NEXT_PUBLIC_LOCAL_BACKEND_URL;
@@ -180,13 +250,15 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
           description: "Failed to process data",
           duration: 5000,
         });
-      }  
+      } finally {
+        setLoading(false);
+      }
 
     }
 
 
     return (
-        <nav className="space-y-2">
+        <nav className={`relative space-y-2 ${loading ? 'blur-sm' : ''}`}>
       {items.map((item) =>
         item.isChidren ? (
           <Accordion
@@ -275,7 +347,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         ),
       )}
       <Form {...form}>
-        {is_bope_initialized? (
+        {!is_bope_initialized? (
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -290,7 +362,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
             >
             <FormField
               control={form.control}
-              name="prompt"
+              name="llm_prompt"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Enter BOPE-GPT Initialization Parameters</FormLabel>
@@ -407,15 +479,29 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                 )}
               />
             <div className="flex justify-center">
-              <Button type="submit">Next Iteration</Button>
+              <Button type="submit">Initialize BOPE Modelling</Button>
             </div>
         </form>
       ) : (
         <form
             onSubmit={(e) => {
+              console.log('next iteration button clicked');
               e.preventDefault();
-              form
-                .handleSubmit(onNextIterationSubmit)()
+              console.log('IterationForm state:', IterationForm.getValues());
+              IterationForm
+                .handleSubmit(
+                  //onNextIterationSubmit
+                //)()
+                (data) => {
+                  console.log('Form is valid, calling onNextIterationSubmit with data:', data);
+                  return onNextIterationSubmit(data);
+                },
+                (errors) => {
+                  console.error('Form validation failed:', errors);
+                })()
+                .then(() => {
+                  console.log('Form submission completed successfully');
+                })
                 .catch((err) => {
                   // Handle the error
                   console.error(err);
@@ -424,14 +510,14 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
             className="space-y-8"
             >
             <FormField
-              control={form.control}
-              name="prompt"
+              control={IterationForm.control}
+              name="llm_prompt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Enter BOPE-GPT Initialization Parameters</FormLabel>
+                  <FormLabel>Run Next BOPE-GPT Model Iteration</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter LLM Prompt"
+                      placeholder="Enter LLM Prompt" // This should not appear by default, only if 'flexible LLM prompts' is true
                       className="resize-none h-80x"
                       {...field}
                     />
@@ -444,61 +530,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
               )}
             />
             <FormField
-              control={form.control}
-              name="num_inputs"
-              render={({ field }) => (
-                <FormItem>
-                  {
-                  //<FormLabel>Enter initialization variables</FormLabel>
-                  }
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Number of input features"
-                      className="resize-none h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="num_initial_samples"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Number of initial samples"
-                      className="resize-none h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="num_initial_comparisons"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Number of initial pairwise comparisons"
-                      className="resize-none h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-                control={form.control}
+                control={IterationForm.control}
                 name="enable_flexible_prompt"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -513,14 +545,18 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        //onCheckedChange={field.onChange}
+                        onCheckedChange={(checked: boolean) => {
+                          field.onChange(checked);
+                          console.log('LLM explanations changed:', checked);
+                        }}
                       />
                     </FormControl>
                   </FormItem>
                 )}
               />
               <FormField
-                control={form.control}
+                control={IterationForm.control}
                 name="enable_llm_explanations"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -535,7 +571,11 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        //onCheckedChange={field.onChange}
+                        onCheckedChange={(checked: boolean) => {
+                          field.onChange(checked);
+                          console.log('LLM explanations changed:', checked);
+                        }}
                       />
                     </FormControl>
                   </FormItem>
