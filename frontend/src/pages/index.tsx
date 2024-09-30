@@ -131,7 +131,6 @@ const Home = () => {
               <Input id="upload_dataset" type="file" onChange={handleChange} />
             </div>
           </div>
-          <Button onClick={testToast}>Test Toast</Button>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>

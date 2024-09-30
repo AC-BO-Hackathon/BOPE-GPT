@@ -39,7 +39,7 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { ConstructionIcon } from "lucide-react";
 //import { Input } from "postcss";
 
-import type { InitializeBopeResponse, IterationBopeResponse } from '../../hooks/bopeStore';
+import type { InitializeBopeResponse, BopeState, IterationBopeResponse } from '../../hooks/bopeStore';
 
 interface SideNavProps {
     items: NavItem[];
@@ -180,6 +180,9 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         }
   
         const result: IterationBopeResponse = await response.json() as IterationBopeResponse;
+        if (typeof result.bope_state === 'string') {
+          result.bope_state = JSON.parse(result.bope_state) as BopeState;
+        }
         setVisualizationData(result);
         console.log(`IterationBopeResponse: ${JSON.stringify(result, null, 2)}`);
   
@@ -235,6 +238,9 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         }
   
         const result: InitializeBopeResponse = await response.json() as InitializeBopeResponse;
+        if (typeof result.bope_state === 'string') {
+          result.bope_state = JSON.parse(result.bope_state) as BopeState;
+        }
         setVisualizationData(result);
         console.log(`InitializationBopeResponse: ${JSON.stringify(result, null, 2)}`);
   
