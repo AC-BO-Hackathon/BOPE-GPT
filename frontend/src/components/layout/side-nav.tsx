@@ -47,6 +47,11 @@ interface SideNavProps {
     className?: string;
 }
 
+interface ErrorData {
+  detail: string | { msg: string; type: string }[];
+  status_code?: number;
+}
+
 const NextIterationFormSchema = z.object({
   llm_prompt: z
     .string().optional(),
@@ -116,7 +121,7 @@ const InitializationFormSchema = z.object({
 
 
 export function SideNav({ items, setOpen, className }: SideNavProps) {
-    const { stateId, visualizationData, loading, setLoading, setVisualizationData } = useBopeStore();
+    const { stateId, latestBopeData, loading, setLoading, setLatestBopeData } = useBopeStore();
     const path = usePathname();
     const { isOpen } = useSidebar();
     const [openItem, setOpenItem] = useState("");
@@ -124,8 +129,8 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
     const [userInput, setUserInput] = useState(''); // New state for user input
 
     // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
-    const is_bope_initialized = visualizationData !== null;
-    console.log(visualizationData);
+    const is_bope_initialized = latestBopeData !== null;
+    console.log(latestBopeData);
 
     useEffect(() => {
         if (isOpen) {
@@ -173,17 +178,16 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
   
         if (!response.ok) {
           //throw new Error('Failed to process data');
-          const errorData = await response.json();
+          const errorData: ErrorData = await response.json() as ErrorData;
           console.error('Error response from server:', errorData);
           throw new Error(`Failed to process data: ${JSON.stringify(errorData)}`);
-    
         }
   
         const result: IterationBopeResponse = await response.json() as IterationBopeResponse;
         if (typeof result.bope_state === 'string') {
           result.bope_state = JSON.parse(result.bope_state) as BopeState;
         }
-        setVisualizationData(result);
+        setLatestBopeData(result);
         console.log(`IterationBopeResponse: ${JSON.stringify(result, null, 2)}`);
   
         toast({
@@ -234,14 +238,17 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
         });
   
         if (!response.ok) {
-          throw new Error('Failed to process data');
+          //throw new Error('Failed to process data');
+          const errorData: ErrorData = await response.json() as ErrorData;
+          console.error('Error response from server:', errorData);
+          throw new Error(`Failed to process data: ${JSON.stringify(errorData)}`);
         }
   
         const result: InitializeBopeResponse = await response.json() as InitializeBopeResponse;
         if (typeof result.bope_state === 'string') {
           result.bope_state = JSON.parse(result.bope_state) as BopeState;
         }
-        setVisualizationData(result);
+        setLatestBopeData(result);
         console.log(`InitializationBopeResponse: ${JSON.stringify(result, null, 2)}`);
   
         toast({

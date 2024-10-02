@@ -30,7 +30,12 @@ from models import (
 from bope_functions import initialize_bope, run_next_iteration
 
 # Import helper functions
-from helpers import serialize_bope_state, deserialize_bope_state, serialize_state
+from helpers import (
+    serialize_bope_state,
+    deserialize_bope_state,
+    serialize_state,
+    brief_summary,
+)
 
 # Load environment variables
 load_dotenv()
@@ -221,7 +226,7 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
             dim, q_inidata, q_comp_ini, bounds, column_names
         )
         end_time = time.time()
-        iteration_duration = end_time - start_time
+        iteration_duration = round(end_time - start_time, 5)
 
         # Update the state in MongoDB
         await update_bope_state(request.state_id, bope_state, iteration_duration)
@@ -232,8 +237,10 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
 
         response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
 
+        brief_bope_state = brief_summary(response_bope_state.model_dump())
+
         logging.info(
-            f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(response_bope_state.model_dump_json(), indent=2)}"
+            f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(brief_bope_state, indent=2)}"
         )
 
         return JSONResponse(
@@ -276,7 +283,7 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
         # Run the next iteration
         bope_state: BopeState = await run_next_iteration(bope_state, model)
         end_time = time.time()
-        iteration_duration = end_time - start_time
+        iteration_duration = round(end_time - start_time, 5)
 
         # Update the state in MongoDB
         await update_bope_state(request.state_id, bope_state, iteration_duration)
@@ -286,8 +293,10 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 
         response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
 
+        brief_bope_state = brief_summary(response_bope_state.model_dump())
+
         logging.info(
-            f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(response_bope_state.model_dump_json(), indent=2)}"
+            f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(brief_bope_state, indent=2)}"
         )
 
         return JSONResponse(

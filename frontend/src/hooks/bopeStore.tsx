@@ -2,11 +2,11 @@ import { create } from 'zustand'
 
 interface AppState {
   stateId: string | null
-  visualizationData: InitializeBopeResponse | null
+  latestBopeData: InitializeBopeResponse | IterationBopeResponse | null // response could be either after initialization or iteration type
   uploadedDatasetData: UploadDatasetSuccessResponse | null
   loading: boolean;
   setStateId: (id: string) => void
-  setVisualizationData: (data: InitializeBopeResponse) => void
+  setLatestBopeData: (data: InitializeBopeResponse | IterationBopeResponse ) => void
   setUploadedDatasetData: (data: UploadDatasetSuccessResponse) => void
   setLoading: (loading: boolean) => void; 
 }
@@ -19,6 +19,20 @@ export interface UploadDatasetSuccessResponse {
   column_names: string[];
 }
 
+interface ContourDataModel {
+  x: number[][]; // List[List[float]] in Python
+  y: number[][]; // List[List[float]] in Python
+  mean: number[][][]; // List[List[List[float]]] in Python
+  std: number[][][]; // List[List[List[float]]] in Python
+}
+
+interface VisualizationDataModel {
+  contour_data: { [key: string]: ContourDataModel }; // Dict[str, SerializedContourDataModel] in Python
+  slider_data: { [key: string]: { [key: string]: any } }; // Dict[str, Dict[str, Any]] in Python
+  num_inputs: number; // int in Python
+  num_outputs: number; // int in Python
+}
+
 export interface BopeState {
   iteration: number;
   X: number[][];
@@ -26,7 +40,8 @@ export interface BopeState {
   best_val: number[];
   input_bounds: number[][];
   input_columns: string[];
-  iteration_duration: number;
+  last_iteration_duration: number;
+  visualization_data: VisualizationDataModel
 }
 
 export interface InitializeBopeResponse { // interface equivalent to NextIterationBopeResponse 
@@ -44,11 +59,11 @@ export interface IterationBopeResponse {
 
 export const useBopeStore = create<AppState>((set) => ({
   stateId: null,
-  visualizationData: null,
+  latestBopeData: null,
   uploadedDatasetData: null,
   loading: false,
   setStateId: (id) => set({ stateId: id }),
-  setVisualizationData: (data) => set({ visualizationData: data }),
+  setLatestBopeData: (data) => set({ latestBopeData: data }),
   setUploadedDatasetData: (data) => set({uploadedDatasetData: data}),
   setLoading: (loading) => set({ loading }),
 }))

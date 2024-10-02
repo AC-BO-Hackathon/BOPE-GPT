@@ -35,16 +35,16 @@ import { string } from "zod";
 import type { UploadDatasetSuccessResponse } from "../hooks/bopeStore";
 
 const Home = () => {
-  const { visualizationData, uploadedDatasetData, loading, setStateId, setUploadedDatasetData } = useBopeStore();
+  const { latestBopeData, uploadedDatasetData, loading, setStateId, setUploadedDatasetData } = useBopeStore();
 
-  const iterationNumber = visualizationData?.bope_state.iteration || 0;
-  const data_points = visualizationData?.bope_state.X.length || 0;
-  const totalComparisonsMade = visualizationData?.bope_state.comparisons.length || 0;
-  const bestVals = visualizationData?.bope_state.best_val || [];
-  const input_columns = visualizationData?.bope_state.input_columns || [];
-  const iteration_duration = visualizationData?.bope_state.iteration_duration || null;
+  const iterationNumber = latestBopeData?.bope_state.iteration || 0;
+  const data_points = latestBopeData?.bope_state.X.length || 0;
+  const totalComparisonsMade = latestBopeData?.bope_state.comparisons.length || 0;
+  const bestVals = latestBopeData?.bope_state.best_val || [];
+  const input_columns = latestBopeData?.bope_state.input_columns || [];
+  const iteration_duration = latestBopeData?.bope_state.last_iteration_duration || null;
   // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
-  const is_bope_initialized = visualizationData !== null;
+  const is_bope_initialized = latestBopeData !== null;
   const all_columns = uploadedDatasetData?.column_names || []; 
 
   const { toast } = useToast();  

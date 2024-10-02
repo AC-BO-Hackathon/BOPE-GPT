@@ -1,6 +1,6 @@
 import os
 import warnings
-from typing import Any, Tuple
+from typing import Any, Tuple, Dict
 import numpy as np
 import torch
 import time
@@ -18,7 +18,14 @@ from itertools import combinations
 import asyncio
 import aiofiles
 
-from models import BopeState, State
+# Getting Pydantic models
+from models import BopeState, State, ContourDataModel, VisualizationDataModel
+
+# Getting helper functions
+from helpers import matplotlib_visualization
+
+import matplotlib.pyplot as plt
+
 
 warnings.filterwarnings("ignore")
 SMOKE_TEST = os.environ.get("SMOKE_TEST")
@@ -30,6 +37,9 @@ co = cohere.Client(cohere_api_key)
 
 # Load Fischer model
 async def load_fischer_model() -> Sequential:
+    """
+    Creates an ANN with predetermined weights representing the Fischer Tropsch dataset
+    """
     N_neurons, N_layers = 20, 1
     model = Sequential()
     model.add(Dense(N_neurons, activation="sigmoid", input_dim=4))
@@ -51,6 +61,9 @@ async def load_fischer_model() -> Sequential:
 
 
 def predict_fischer_model(X: torch.Tensor, fischer_model: Sequential) -> torch.Tensor:
+    """
+    Predicts the output of the Fischer model for given input tensor X
+    """
     y_pred = fischer_model.predict(X)
     return torch.tensor(y_pred)
 
@@ -99,7 +112,10 @@ async def generate_comparisons_llm(
 def init_and_fit_model(
     X: torch.tensor, comp: torch.tensor
 ) -> Tuple[PairwiseLaplaceMarginalLogLikelihood, PairwiseGP]:
-    model = PairwiseGP(X, comp, input_transform=Normalize(d=X.shape[-1]))
+    model = PairwiseGP(
+        X, comp, input_transform=Normalize(d=X.shape[-1]), jitter=1e-3
+    )  # note: the pairwiseGP learns the latent utility function, NOT the actual output values of the dataset
+    # ques: set a separate GP model (with customizable kernel) in parallel to learn to actual output values of the dataset given certain inputs?
     mll = PairwiseLaplaceMarginalLogLikelihood(model.likelihood, model)
     fit_gpytorch_mll(mll)
     return mll, model
@@ -208,12 +224,139 @@ async def run_next_iteration(
     current_best = utility(X, fischer_model).max(dim=0).values
     bope_state.best_val = torch.max(bope_state.best_val, current_best)
 
-    bope_state: BopeState = bope_state.copy(
+    default_input_pairs = [0, 1]
+
+    # Generate visualization data
+    print("Generating visualization data...")
+    vis_data: VisualizationDataModel = generate_contour_visualization_data(
+        model, bope_state.input_bounds, default_input_pairs
+    )
+    print(f"\n Vis_data.contour_data.keys(): {vis_data.contour_data.keys()}")
+
+    bope_state: BopeState = bope_state.model_copy(
         update={
             "iteration": bope_state.iteration + 1,
             "X": X,
             "comparisons": comps,
+            "visualization_data": vis_data,
         }
     )
 
     return bope_state
+
+
+def generate_contour_visualization_data(
+    model: PairwiseGP,
+    input_bounds: torch.Tensor,
+    input_pairs: list[int],
+    resolution: int = 50,
+) -> VisualizationDataModel:
+    """
+    Generate data for visualizing the PairwiseGP model.
+
+    Args:
+        model (PairwiseGP): The trained PairwiseGP model.
+        input_bounds (torch.Tensor): A tensor of shape (2, num_inputs) specifying the lower and upper bounds for each input.
+        input_pairs (list[int]): The pair of input features to plot as plane axes of the contour plots.
+        resolution (int): The number of points to sample in each dimension for the contour plots.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the visualization data.
+    """
+
+    num_inputs = input_bounds.shape[1]
+    num_outputs = (
+        model.num_outputs
+    )  #  = 1 for pairwiseGP (represents preference degree of all inputs provided as a whole)
+
+    # Generate grid for all possible pairs of inputs selectable
+    """
+    grid_data = {}
+    for i in range(num_inputs):
+        for j in range(i + 1, num_inputs):
+            x = torch.linspace(input_bounds[0, i], input_bounds[1, i], resolution)
+            y = torch.linspace(input_bounds[0, j], input_bounds[1, j], resolution)
+            grid_x, grid_y = torch.meshgrid(x, y, indexing="ij")
+            grid_data[f"input_{i}_{j}"] = (grid_x, grid_y)
+    """
+
+    # Generate grid only for provided pair of inputs
+    grid_data = {}
+    i, j = input_pairs
+    x = torch.linspace(input_bounds[0, i], input_bounds[1, i], resolution)
+    y = torch.linspace(input_bounds[0, j], input_bounds[1, j], resolution)
+    grid_x, grid_y = torch.meshgrid(x, y, indexing="ij")
+    grid_data[f"input_{i}_{j}"] = (grid_x, grid_y)
+
+    # print(f"\n Grid_data generated: {grid_data}")
+
+    # Generate data for contour plots
+    contour_data = {}
+    for pair, (grid_x, grid_y) in grid_data.items():
+        i, j = map(int, pair.split("_")[1:])
+
+        # Create input tensor for the model
+        X = torch.zeros(resolution, resolution, num_inputs)
+        X[:, :, i] = grid_x
+        X[:, :, j] = grid_y
+
+        # Set other inputs to their middle values
+        non_ij_ranges = {}
+        for k in range(num_inputs):
+            if k != i and k != j:
+                # X[:, :, k] = (input_bounds[0, k] + input_bounds[1, k]) / 2
+                non_ij_ranges[k] = torch.linspace(
+                    input_bounds[0, k], input_bounds[1, k], 10
+                )
+
+        # Iterate over all combinations of non i and j inputs
+        for values in torch.cartesian_prod(*non_ij_ranges.values()):
+            for idx, k in enumerate(non_ij_ranges.keys()):
+                X[:, :, k] = values[idx]
+
+            print(
+                f"\n Getting model predictions for pair- {pair} with non i and j inputs: {values}"
+            )
+
+            # print(f"\n Getting model predictions for pair- {pair}:")
+
+            # Get model predictions
+            with torch.no_grad():
+                posterior = model.posterior(X.reshape(-1, num_inputs))
+                mean = posterior.mean.reshape(resolution, resolution, num_outputs)
+                std = posterior.stddev.reshape(resolution, resolution, num_outputs)
+
+            # print(
+            #    f"\nModel predictions:\nposterior: {posterior}\nmean: {mean}\nstd: {std}"
+            # )
+
+            # Store contour data for each output dimension
+            contour_data[f"{pair}_{values}"] = ContourDataModel(
+                x=grid_x.numpy(),  # converting from Torch tensor to numpy array for Matplotlib compatibility
+                y=grid_y.numpy(),
+                mean=[mean[:, :, k].numpy() for k in range(num_outputs)],
+                std=[std[:, :, k].numpy() for k in range(num_outputs)],
+            )
+
+    # matplotlib_visualization(contour_data, num_outputs) # uncomment this for local runs/testing
+
+    # Generate slider data (WIP: modify for only for non primary input pair inputs)
+    slider_data = {}
+    for i in range(num_inputs):
+        slider_data[f"input_{i}"] = {
+            "min": input_bounds[0, i].item(),
+            "max": input_bounds[1, i].item(),
+            # "default": (input_bounds[0, i] + input_bounds[1, i]).item() / 2,
+            "default_range": torch.linspace(
+                input_bounds[0, k], input_bounds[1, k], 10
+            ).tolist(),
+        }
+
+    visualization_data = VisualizationDataModel(
+        contour_data=contour_data,
+        slider_data=slider_data,
+        num_inputs=num_inputs,
+        num_outputs=num_outputs,
+    )
+
+    return visualization_data

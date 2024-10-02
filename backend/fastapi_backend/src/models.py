@@ -1,7 +1,8 @@
 from pydantic import BaseModel
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from datetime import datetime, timezone
 import torch
+import numpy as np
 
 
 # Pydantic models for api request validation
@@ -24,6 +25,38 @@ class RunNextIterationRequest(BaseModel):
     state_id: str
 
 
+# Pydantic models for visualization data
+class ContourDataModel(BaseModel):
+    x: np.ndarray
+    y: np.ndarray
+    mean: List[np.ndarray]
+    std: List[np.ndarray]
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class SerializedContourDataModel(BaseModel):
+    x: List[List[float]]
+    y: List[List[float]]
+    mean: List[List[List[float]]]
+    std: List[List[List[float]]]
+
+
+class VisualizationDataModel(BaseModel):
+    contour_data: Dict[str, ContourDataModel]
+    slider_data: Dict[str, Dict[str, Any]]
+    num_inputs: int
+    num_outputs: int
+
+
+class SerializedVisualizationDataModel(BaseModel):
+    contour_data: Dict[str, SerializedContourDataModel]
+    slider_data: Dict[str, Dict[str, Any]]
+    num_inputs: int
+    num_outputs: int
+
+
 # Pydantic models for bope-state, state, dataset ('state' includes 'bope-state' plus auxiliary info) and serialied versions
 class BopeState(BaseModel):
     iteration: int
@@ -34,17 +67,7 @@ class BopeState(BaseModel):
     input_columns: List[str]
     last_iteration_duration: Optional[float]
     updated_at: Optional[datetime]
-
-    class Config:
-        arbitrary_types_allowed = True
-
-
-class State(BaseModel):
-    created_at: datetime
-    dataset_id: Optional[str]
-    column_names: List[str]
-    bounds: List[List[float]]
-    bope_state: Optional[BopeState]
+    visualization_data: Optional[VisualizationDataModel] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -59,6 +82,18 @@ class SerializedBopeState(BaseModel):
     input_columns: List[str]
     last_iteration_duration: float
     updated_at: datetime
+    visualization_data: Optional[SerializedVisualizationDataModel] = None
+
+
+class State(BaseModel):
+    created_at: datetime
+    dataset_id: Optional[str]
+    column_names: List[str]
+    bounds: List[List[float]]
+    bope_state: Optional[BopeState]
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class SerializedState(BaseModel):
