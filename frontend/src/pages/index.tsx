@@ -32,25 +32,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { string } from "zod";
-
-// Interface for the successful response from /upload_dataset/
-export interface UploadDatasetSuccessResponse {
-  message: string;
-  dataset_id: string;
-  state_id: string;
-  column_names: string[];
-}
+import type { UploadDatasetSuccessResponse } from "../hooks/bopeStore";
 
 const Home = () => {
-  const { visualizationData, uploadedDatasetData, setStateId, setUploadedDatasetData } = useBopeStore();
+  const { latestBopeData, uploadedDatasetData, loading, setStateId, setUploadedDatasetData } = useBopeStore();
 
-  const iterationNumber = visualizationData?.bope_state.iteration || 0;
-  const data_points = visualizationData?.bope_state.X.length || 0;
-  const totalComparisonsMade = visualizationData?.bope_state.comparisons.length || 0;
-  const bestVals = visualizationData?.bope_state.best_val || [];
-  const input_columns = visualizationData?.bope_state.input_columns || [];
+  const iterationNumber = latestBopeData?.bope_state.iteration || 0;
+  const data_points = latestBopeData?.bope_state.X.length || 0;
+  const totalComparisonsMade = latestBopeData?.bope_state.comparisons.length || 0;
+  const bestVals = latestBopeData?.bope_state.best_val || [];
+  const input_columns = latestBopeData?.bope_state.input_columns || [];
+  const iteration_duration = latestBopeData?.bope_state.last_iteration_duration || null;
   // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
-  const is_bope_initialized = visualizationData !== null;
+  const is_bope_initialized = latestBopeData !== null;
   const all_columns = uploadedDatasetData?.column_names || []; 
 
   const { toast } = useToast();  
@@ -119,8 +113,15 @@ const Home = () => {
     });
   };
 
+
   return (
-    <div className="flex h-full flex-col">
+    <div>
+    {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-50">
+            <div className="loader">Loading...</div>
+          </div>
+        )}
+    <div className={`flex h-full flex-col relative ${loading ? 'blur-sm' : ''}`}>
       <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
@@ -130,7 +131,6 @@ const Home = () => {
               <Input id="upload_dataset" type="file" onChange={handleChange} />
             </div>
           </div>
-          <Button onClick={testToast}>Test Toast</Button>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
@@ -171,19 +171,23 @@ const Home = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {is_bope_initialized? (
+                    {/*is_bope_initialized? (
                       "Input Attributes"
                     ) : (
                       "All Dataset Attributes"
-                    )}
+                    )*/}
+                    Dataset Attributes
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex justify-center items-center">
                   {is_bope_initialized? (
                     <div className="text-xs font-bold">
                       <ul className="list-disc py-2 pl-5">
-                        {input_columns.map((val, index) => (
-                          <li key={index}>{val}
+                        {all_columns.map((val, index) => (
+                          <li className="py-1" key={index}>{val}{" "}
+                            <span className="font-normal text-muted-foreground">
+                              {input_columns.includes(val) ? "(input)" : "(output)"}
+                            </span>
                           </li>
                         ))}
                       </ul> 
@@ -193,7 +197,7 @@ const Home = () => {
                       <div className="text-xs font-bold">
                         <ul className="list-disc py-2 pl-5">
                           {all_columns.map((val, index) => (
-                            <li key={index}>{val}
+                            <li className="py-1" key={index}>{val}
                             </li>
                           ))}
                         </ul>
@@ -218,12 +222,12 @@ const Home = () => {
                     Iteration
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex justify-center items-center">
                   {is_bope_initialized? (
                     <div>
                     <div className="text-2xl font-bold">{iterationNumber}</div>
                     <p className="text-xs py-2 text-muted-foreground">
-                      Completed in XYZ seconds
+                      Took {iteration_duration} seconds
                     </p>
                     </div>
                   ) : (
@@ -242,12 +246,12 @@ const Home = () => {
                     Data Points in Model 
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex justify-center items-center">
                 {is_bope_initialized? (
                   <div>
                     <div className="text-2xl font-bold">{data_points}</div>
                     <p className="text-xs py-2 text-muted-foreground">
-                      Each iteration adds a pair (2)
+                      Total sampled data points for the PairwiseGP Model
                     </p>
                   </div>
                   ) : (
@@ -266,12 +270,12 @@ const Home = () => {
                     Total Comparisons Made
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex justify-center items-center">
                   {is_bope_initialized? (
                     <div>
                       <div className="text-2xl font-bold">{totalComparisonsMade}</div>
                       <p className="text-xs py-2 text-muted-foreground">
-                        Each Iteration adds 1 
+                        Pairwise comparisons/relative rankings of sampled data for the model
                       </p>
                     </div>
                   ) : (
@@ -291,10 +295,10 @@ const Home = () => {
                 <CardContent>
                   {bestVals.length > 0 ? (
                     <div className="text-xs font-bold">
-                      <ul className="list-disc pl-5">
+                      <ul className="list-disc">
                         {bestVals.map((val, index) => (
-                          <li key={index}>{val}
-                            <span className="text-sm text-muted-foreground">
+                          <li className="py-1" key={index}>{val}
+                            <span className="text-xs font-normal text-muted-foreground">
                             {` (${input_columns[index] || ''})`}
                           </span>
                           </li>
@@ -352,6 +356,7 @@ const Home = () => {
           </TabsContent>
         </Tabs>
       </div>
+    </div>
     </div>
   );
 };

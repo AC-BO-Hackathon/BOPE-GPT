@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "bope-gpt-backend"
+version = "0.1.0"
+description = "FastAPI backend app for BOPE-GPT"
+authors = ["Ratish Panda <ratishp2001@gmail.com>"]
+license = "GNU"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "3.11.9"
+aiofiles = "24.1.0"
+botorch = "0.12.0"
+fastapi = {version = "0.115.0", extras = ["standard"]}
+cohere = "5.9.4"
+keras = "3.5.0"
+motor = "3.6.0"
+numpy = "1.26.4"
+pandas = "1.5.3"
+pydantic = "2.9.2"
+pymongo = "4.9.1"
+python-dotenv = "1.0.1"
+tensorflow-io-gcs-filesystem = "0.31.0"
+tensorflow = "2.17.0"
+torch = "2.4.1"
+uvicorn = "0.30.6"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+pylint = "^3.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
