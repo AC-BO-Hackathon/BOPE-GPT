@@ -184,10 +184,14 @@ def matplotlib_visualization(contour_data: ContourDataModel, num_outputs: int):
 # for logging purposes):
 
 
-def brief_summary(data, max_length=100, max_depth=3, current_depth=0):
+def brief_summary(data, max_length=100, max_depth=2, current_depth=0):
     if current_depth > max_depth:
-        # return "..."
-        return f"<{type(data).__name__}>"
+        if isinstance(data, dict):
+            return f"<{type(data).__name__} (length: {len(data)}, depth: {get_depth(data)})>"
+        elif isinstance(data, list):
+            return f"<{type(data).__name__} (length: {len(data)}, depth: {get_depth(data)})>"
+        else:
+            return f"<{type(data).__name__}>"
 
     if isinstance(data, dict):
         return {
@@ -206,3 +210,19 @@ def brief_summary(data, max_length=100, max_depth=3, current_depth=0):
     elif isinstance(data, datetime):
         return data.isoformat()  # Convert datetime to ISO format string
     return data
+
+
+def get_depth(data, current_depth=0):
+    if isinstance(data, dict):
+        return (
+            max(get_depth(v, current_depth + 1) for v in data.values())
+            if data
+            else current_depth
+        )
+    elif isinstance(data, list):
+        return (
+            max(get_depth(item, current_depth + 1) for item in data)
+            if data
+            else current_depth
+        )
+    return current_depth

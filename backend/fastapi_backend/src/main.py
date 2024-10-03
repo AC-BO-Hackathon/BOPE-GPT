@@ -40,12 +40,25 @@ from helpers import (
 # Load environment variables
 load_dotenv()
 
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler("app.log"), logging.StreamHandler()],
 )
+
+
+class ExcludeWatchfilesInfoFilter(logging.Filter):
+    def filter(self, record):
+        return not (
+            record.name == "watchfiles.main"
+            and "1 change detected" in record.getMessage()
+        )
+
+
+watchfiles_logger = logging.getLogger("watchfiles.main")
+watchfiles_logger.addFilter(ExcludeWatchfilesInfoFilter())
 
 # FastAPI app setup
 app = FastAPI()
@@ -55,6 +68,7 @@ origins = [
     "http://localhost",
     "http://localhost:8080",
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://bope-gpt.vercel.app/",
 ]
 
@@ -237,7 +251,12 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
 
         response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
 
+        summarizing_start_time = time.time()
         brief_bope_state = brief_summary(response_bope_state.model_dump())
+        summarizing_end_time = time.time()
+        print(
+            f"\n Loggable summarizing time: {summarizing_end_time - summarizing_start_time}"
+        )
 
         logging.info(
             f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(brief_bope_state, indent=2)}"
@@ -293,7 +312,12 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 
         response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
 
+        summarizing_start_time = time.time()
         brief_bope_state = brief_summary(response_bope_state.model_dump())
+        summarizing_end_time = time.time()
+        print(
+            f"\n Loggable summarizing time: {summarizing_end_time - summarizing_start_time}"
+        )
 
         logging.info(
             f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(brief_bope_state, indent=2)}"
