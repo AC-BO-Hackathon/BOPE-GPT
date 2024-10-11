@@ -44,7 +44,8 @@ export function GaussianProcessVisualization(): JSX.Element {
             // Calculate the difference between slider values and key values
             const diff = keyValues.reduce((sum: number, keyValue: number, idx: number) => {
                 const sliderKey = `input_${idx + 2}`;  // Use slider values for input_2, input_3
-                return sum + Math.abs(keyValue - updatedSliderValues[sliderKey]);
+                const sliderValue = updatedSliderValues[sliderKey] ?? 0; // Provide a default value of 0 if undefined
+                return sum + Math.abs(keyValue - sliderValue);
             }, 0);
 
             // If this key has a smaller diff, update closest
@@ -132,18 +133,22 @@ export function GaussianProcessVisualization(): JSX.Element {
             {sliderInputs.map((key) => {
                 const data = visualizationData.slider_data[key] as SliderData | undefined;
                 if (!data) return null;
+                let sliderValue = sliderValues[key] ?? data.default_range[0];
+                if (sliderValue === undefined){
+                    sliderValue = 0;
+                }
                 return (
                     <div key={key} className='mb-4 flex flex-row justify-center'>
-                        <label className="px-2">Input {parseInt(key.split('_')[1])+1}</label>
+                        <label className="px-2">Input {parseInt(key.split('_')[1] ?? '0')+1}</label>
                         <Slider
                             min={data.min}
                             max={data.max}
                             step={(data.max - data.min) / (data.default_range.length - 1)}
-                            value={[sliderValues[key] || data.default_range[0]]}
-                            onValueChange={(value) => handleSliderChange(key, value[0])}
+                            value={[sliderValue]}
+                            onValueChange={(value) => handleSliderChange(key, value[0] ?? 0)}
                             className="w-1/2 px-5"
                         />      
-                        <span>{sliderValues[key]?.toFixed(4) || data.default_range[0].toFixed(4)}</span>
+                        <span>{sliderValues[key]?.toFixed(4) || (data.default_range[0] ?? 0).toFixed(4)}</span>
                     </div>
                 );
             })}
