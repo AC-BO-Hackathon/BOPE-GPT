@@ -26,7 +26,13 @@ import { toast } from "@/components/ui/use-toast"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
-
+import {
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+  Card,
+} from "@/components/ui/card";
 
 import {
     Accordion,
@@ -121,12 +127,14 @@ const InitializationFormSchema = z.object({
 
 
 export function SideNav({ items, setOpen, className }: SideNavProps) {
-    const { stateId, latestBopeData, loading, setLoading, setLatestBopeData } = useBopeStore();
+    const { stateId, latestBopeData, loading, uploadedDatasetData, setLoading, setLatestBopeData } = useBopeStore();
     const path = usePathname();
     const { isOpen } = useSidebar();
     const [openItem, setOpenItem] = useState("");
     const [lastOpenItem, setLastOpenItem] = useState("");
     const [userInput, setUserInput] = useState(''); // New state for user input
+
+    const all_columns = uploadedDatasetData?.column_names || []; 
 
     // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
     const is_bope_initialized = latestBopeData !== null;
@@ -271,7 +279,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
 
 
     return (
-        <nav className={`relative space-y-2 ${loading ? 'blur-sm' : ''}`}>
+    <nav className={`relative space-y-2 ${loading ? 'blur-sm' : ''}`}>
       {items.map((item) =>
         item.isChidren ? (
           <Accordion
@@ -359,247 +367,267 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
           </Link>
         ),
       )}
-      <Form {...form}>
-        {!is_bope_initialized? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form
-                .handleSubmit(onInitializationSubmit)()
-                .catch((err) => {
-                  // Handle the error
-                  console.error(err);
-                });
-            }}
-            className="space-y-8"
-            >
-            <FormField
-              control={form.control}
-              name="llm_prompt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Enter BOPE-GPT Initialization Parameters</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter LLM Prompt"
-                      className="resize-none h-80x"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="px-2 text-xs">
-                    (Used by the Cohere LLM model to make pairwise comparisons)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="num_inputs"
-              render={({ field }) => (
-                <FormItem>
-                  {
-                  //<FormLabel>Enter initialization variables</FormLabel>
-                  }
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Number of input features"
-                      className="resize-none h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="num_initial_samples"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Number of initial samples"
-                      className="resize-none h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="num_initial_comparisons"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Number of initial pairwise comparisons"
-                      className="resize-none h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-                control={form.control}
-                name="enable_flexible_prompt"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Flexible Prompt Setup
-                      </FormLabel>
-                      <FormDescription>
-                        Enable flexible prompt setup across iterations
+      <div>
+        { all_columns.length === 0? (
+           <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                BOPE-GPT Initialization Panel
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center items-center">
+              <div>
+                <p className="text-xs py-2 text-red-500 text-muted-foreground">
+                  No Dataset detected. Upload one to proceed. 
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Form {...form}>
+            {!is_bope_initialized? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form
+                    .handleSubmit(onInitializationSubmit)()
+                    .catch((err) => {
+                      // Handle the error
+                      console.error(err);
+                    });
+                }}
+                className="space-y-8"
+                >
+                <FormField
+                  control={form.control}
+                  name="llm_prompt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>BOPE-GPT Initialization Panel</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter LLM Prompt"
+                          className="resize-none h-80x"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className="px-2 text-xs">
+                        (Used by the Cohere LLM model to make pairwise comparisons)
                       </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="enable_llm_explanations"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        LLM Explanations
-                      </FormLabel>
-                      <FormDescription>
-                        Enable pairwise comparison explanations from LLM
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="num_inputs"
+                  render={({ field }) => (
+                    <FormItem>
+                      {
+                      //<FormLabel>Enter initialization variables</FormLabel>
+                      }
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Number of input features"
+                          className="resize-none h-10"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="num_initial_samples"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Number of initial samples"
+                          className="resize-none h-10"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="num_initial_comparisons"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Number of initial pairwise comparisons"
+                          className="resize-none h-10"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                    control={form.control}
+                    name="enable_flexible_prompt"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Flexible Prompt Setup
+                          </FormLabel>
+                          <FormDescription>
+                            Enable flexible prompt setup across iterations
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="enable_llm_explanations"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            LLM Explanations
+                          </FormLabel>
+                          <FormDescription>
+                            Enable pairwise comparison explanations from LLM
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                <div className="flex justify-center">
+                  <Button type="submit">Initialize BOPE Modelling</Button>
+                </div>
+                </form>
+              ) : (
+                <form
+                onSubmit={(e) => {
+                  console.log('next iteration button clicked');
+                  e.preventDefault();
+                  console.log('IterationForm state:', IterationForm.getValues());
+                  IterationForm
+                    .handleSubmit(
+                      //onNextIterationSubmit
+                    //)()
+                    (data) => {
+                      console.log('Form is valid, calling onNextIterationSubmit with data:', data);
+                      return onNextIterationSubmit(data);
+                    },
+                    (errors) => {
+                      console.error('Form validation failed:', errors);
+                    })()
+                    .then(() => {
+                      console.log('Form submission completed successfully');
+                    })
+                    .catch((err) => {
+                      // Handle the error
+                      console.error(err);
+                    });
+                }}
+                className="space-y-8"
+                >
+                <FormField
+                  control={IterationForm.control}
+                  name="llm_prompt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Run Next BOPE-GPT Model Iteration</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter LLM Prompt" // This should not appear by default, only if 'flexible LLM prompts' is true
+                          className="resize-none h-80x"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className="px-2 text-xs">
+                        (Used by the Cohere LLM model to make pairwise comparisons)
                       </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            <div className="flex justify-center">
-              <Button type="submit">Initialize BOPE Modelling</Button>
-            </div>
-        </form>
-      ) : (
-        <form
-            onSubmit={(e) => {
-              console.log('next iteration button clicked');
-              e.preventDefault();
-              console.log('IterationForm state:', IterationForm.getValues());
-              IterationForm
-                .handleSubmit(
-                  //onNextIterationSubmit
-                //)()
-                (data) => {
-                  console.log('Form is valid, calling onNextIterationSubmit with data:', data);
-                  return onNextIterationSubmit(data);
-                },
-                (errors) => {
-                  console.error('Form validation failed:', errors);
-                })()
-                .then(() => {
-                  console.log('Form submission completed successfully');
-                })
-                .catch((err) => {
-                  // Handle the error
-                  console.error(err);
-                });
-            }}
-            className="space-y-8"
-            >
-            <FormField
-              control={IterationForm.control}
-              name="llm_prompt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Run Next BOPE-GPT Model Iteration</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter LLM Prompt" // This should not appear by default, only if 'flexible LLM prompts' is true
-                      className="resize-none h-80x"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="px-2 text-xs">
-                    (Used by the Cohere LLM model to make pairwise comparisons)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-                control={IterationForm.control}
-                name="enable_flexible_prompt"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Flexible Prompt Setup
-                      </FormLabel>
-                      <FormDescription>
-                        Enable flexible prompt setup across iterations
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        //onCheckedChange={field.onChange}
-                        onCheckedChange={(checked: boolean) => {
-                          field.onChange(checked);
-                          console.log('LLM explanations changed:', checked);
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={IterationForm.control}
-                name="enable_llm_explanations"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        LLM Explanations
-                      </FormLabel>
-                      <FormDescription>
-                        Enable pairwise comparison explanations from LLM
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        //onCheckedChange={field.onChange}
-                        onCheckedChange={(checked: boolean) => {
-                          field.onChange(checked);
-                          console.log('LLM explanations changed:', checked);
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            <div className="flex justify-center">
-              <Button type="submit">Next Iteration</Button>
-            </div>
-        </form>
-      )}
-      </Form>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                    control={IterationForm.control}
+                    name="enable_flexible_prompt"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Flexible Prompt Setup
+                          </FormLabel>
+                          <FormDescription>
+                            Enable flexible prompt setup across iterations
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            //onCheckedChange={field.onChange}
+                            onCheckedChange={(checked: boolean) => {
+                              field.onChange(checked);
+                              console.log('LLM explanations changed:', checked);
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={IterationForm.control}
+                    name="enable_llm_explanations"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            LLM Explanations
+                          </FormLabel>
+                          <FormDescription>
+                            Enable pairwise comparison explanations from LLM
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            //onCheckedChange={field.onChange}
+                            onCheckedChange={(checked: boolean) => {
+                              field.onChange(checked);
+                              console.log('LLM explanations changed:', checked);
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                <div className="flex justify-center">
+                  <Button type="submit">Next Iteration</Button>
+                </div>
+            </form>
+          )
+          }</Form>
+        )
+      }
+      </div>
     </nav>
     );
 }

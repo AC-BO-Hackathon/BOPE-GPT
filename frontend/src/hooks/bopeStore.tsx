@@ -19,14 +19,14 @@ export interface UploadDatasetSuccessResponse {
   column_names: string[];
 }
 
-interface ContourDataModel {
+export interface ContourDataModel {
   x: number[][]; // List[List[float]] in Python
   y: number[][]; // List[List[float]] in Python
   mean: number[][][]; // List[List[List[float]]] in Python
   std: number[][][]; // List[List[List[float]]] in Python
 }
 
-interface VisualizationDataModel {
+export interface VisualizationDataModel {
   contour_data: { [key: string]: ContourDataModel }; // Dict[str, SerializedContourDataModel] in Python
   slider_data: { [key: string]: { [key: string]: any } }; // Dict[str, Dict[str, Any]] in Python
   num_inputs: number; // int in Python

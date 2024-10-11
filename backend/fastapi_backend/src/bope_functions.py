@@ -182,6 +182,14 @@ async def initialize_bope(
 
     input_columns = column_names[:dim]
 
+    # Generate visualization data
+    default_input_pairs = [0, 1]
+    print("Generating visualization data...")
+    vis_data: VisualizationDataModel = generate_contour_visualization_data(
+        model, input_bounds, default_input_pairs
+    )
+    print(f"\n Vis_data.contour_data.keys(): {vis_data.contour_data.keys()}")
+
     return BopeState(
         iteration=1,  # initialization iteration
         X=init_X,
@@ -192,6 +200,7 @@ async def initialize_bope(
         input_columns=input_columns,
         last_iteration_duration=None,
         updated_at=None,
+        visualization_data=vis_data,
     )
 
 
@@ -224,9 +233,8 @@ async def run_next_iteration(
     current_best = utility(X, fischer_model).max(dim=0).values
     bope_state.best_val = torch.max(bope_state.best_val, current_best)
 
-    default_input_pairs = [0, 1]
-
     # Generate visualization data
+    default_input_pairs = [0, 1]
     print("Generating visualization data...")
     vis_data: VisualizationDataModel = generate_contour_visualization_data(
         model, bope_state.input_bounds, default_input_pairs
@@ -269,17 +277,6 @@ def generate_contour_visualization_data(
         model.num_outputs
     )  #  = 1 for pairwiseGP (represents preference degree of all inputs provided as a whole)
 
-    # Generate grid for all possible pairs of inputs selectable
-    """
-    grid_data = {}
-    for i in range(num_inputs):
-        for j in range(i + 1, num_inputs):
-            x = torch.linspace(input_bounds[0, i], input_bounds[1, i], resolution)
-            y = torch.linspace(input_bounds[0, j], input_bounds[1, j], resolution)
-            grid_x, grid_y = torch.meshgrid(x, y, indexing="ij")
-            grid_data[f"input_{i}_{j}"] = (grid_x, grid_y)
-    """
-
     # Generate grid only for provided pair of inputs
     grid_data = {}
     i, j = input_pairs
@@ -300,7 +297,7 @@ def generate_contour_visualization_data(
         X[:, :, i] = grid_x
         X[:, :, j] = grid_y
 
-        # Set other inputs to their middle values
+        # Set other inputs to their middle values (edit: now set to multiple values)
         non_ij_ranges = {}
         for k in range(num_inputs):
             if k != i and k != j:
@@ -309,6 +306,7 @@ def generate_contour_visualization_data(
                     input_bounds[0, k], input_bounds[1, k], 10
                 )
 
+        """
         # Iterate over all combinations of non i and j inputs
         for values in torch.cartesian_prod(*non_ij_ranges.values()):
             for idx, k in enumerate(non_ij_ranges.keys()):
@@ -336,6 +334,34 @@ def generate_contour_visualization_data(
                 y=grid_y.numpy(),
                 mean=[mean[:, :, k].numpy() for k in range(num_outputs)],
                 std=[std[:, :, k].numpy() for k in range(num_outputs)],
+            )
+            """
+
+        for values in torch.cartesian_prod(*non_ij_ranges.values()):
+            for idx, k in enumerate(non_ij_ranges.keys()):
+                # Ensure that X is correctly filled for non-i,j inputs
+                X[:, :, k] = values[idx].expand_as(
+                    grid_x
+                )  # expand values to match the 50x50 grid
+
+            print(
+                f"Getting model predictions for pair {pair} with non-i,j inputs: {values}"
+            )
+
+            # Get model predictions
+            with torch.no_grad():
+                posterior = model.posterior(X.reshape(-1, num_inputs))
+                mean = posterior.mean.reshape(resolution, resolution, num_outputs)
+                std = posterior.stddev.reshape(resolution, resolution, num_outputs)
+
+            # Store the contour data properly
+            contour_data[f"{pair}_{values}"] = ContourDataModel(
+                x=grid_x.numpy(),
+                y=grid_y.numpy(),
+                mean=[
+                    mean[:, :, 0].numpy()
+                ],  # Assuming num_outputs == 1 for pairwiseGP
+                std=[std[:, :, 0].numpy()],
             )
 
     # matplotlib_visualization(contour_data, num_outputs) # uncomment this for local runs/testing

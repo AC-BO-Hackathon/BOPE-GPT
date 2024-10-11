@@ -47,6 +47,8 @@ const Home = () => {
   const is_bope_initialized = latestBopeData !== null;
   const all_columns = uploadedDatasetData?.column_names || []; 
 
+  const visualizationData = latestBopeData?.bope_state.visualization_data || null;
+
   const { toast } = useToast();  
 
   const testToast = () => {
@@ -126,10 +128,13 @@ const Home = () => {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <Label className="px-2" htmlFor="uploadDataset">Upload Dataset</Label>
+            <Label className="px-2 font-bold" htmlFor="uploadDataset">Upload Dataset</Label>
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Input id="upload_dataset" type="file" onChange={handleChange} />
             </div>
+            {all_columns.length > 0 && (
+                <span className="text-xs text-center text-muted-foreground text-green-500">Dataset processed</span>
+              )}
           </div>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
@@ -202,7 +207,7 @@ const Home = () => {
                           ))}
                         </ul>
                         <div className="text-xs font-normal py-2 text-muted-foreground">
-                          Subselect input features from these in the initialization menu
+                          Subselect 1 to X of these input features from these by entering X in the initialization panel
                         </div>
                       </div>
                     ) : (
