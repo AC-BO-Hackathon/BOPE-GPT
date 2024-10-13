@@ -404,6 +404,9 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>BOPE-GPT Initialization Panel</FormLabel>
+                      <div className="w-full">
+                        <p className="text-xs text-center text-green-500 w-full">Dataset processed</p>
+                      </div>
                       <FormControl>
                         <Textarea
                           placeholder="Enter LLM Prompt"

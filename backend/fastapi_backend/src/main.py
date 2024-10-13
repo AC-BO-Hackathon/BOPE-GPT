@@ -191,6 +191,7 @@ async def update_bope_state(
     bope_state.last_iteration_duration = iteration_duration
     bope_state.updated_at = datetime.now(timezone.utc)
     serialized_state = serialize_bope_state(bope_state).model_dump()
+    print(f"\n serialized_state = {serialized_state}")
     await collection.update_one(
         {"_id": ObjectId(state_id)}, {"$set": {"bope_state": serialized_state}}
     )

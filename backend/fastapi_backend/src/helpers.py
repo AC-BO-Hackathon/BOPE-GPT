@@ -57,9 +57,11 @@ def serialize_bope_state(bope_state: BopeState) -> SerializedBopeState:
             b.tolist() for b in bope_state.input_bounds
         ],  # holds bounds for input columns only
         input_columns=bope_state.input_columns,
+        output_columns=bope_state.output_columns,
         last_iteration_duration=bope_state.last_iteration_duration,
         updated_at=bope_state.updated_at,
         visualization_data=serialized_visualization_data,
+        comparison_data=bope_state.comparison_data,
     )
 
 
@@ -94,9 +96,11 @@ def deserialize_bope_state(serialized_bope_state: SerializedBopeState) -> BopeSt
             [torch.tensor(b) for b in serialized_bope_state.input_bounds]
         ),  # holds bounds for input columns only
         input_columns=serialized_bope_state.input_columns,
+        output_columns=serialized_bope_state.output_columns,
         last_iteration_duration=serialized_bope_state.last_iteration_duration,
         updated_at=serialized_bope_state.updated_at,
         visualization_data=deserialized_visualization_data,
+        comparison_data=serialized_bope_state.comparison_data,
     )
 
 

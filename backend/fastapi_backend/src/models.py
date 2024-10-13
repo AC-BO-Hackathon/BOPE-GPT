@@ -57,6 +57,15 @@ class SerializedVisualizationDataModel(BaseModel):
     num_outputs: int
 
 
+# Pydantic models for comparison data
+
+
+class ComparisonDataModel(BaseModel):
+    pair_indices: List[List[int]]
+    pair_input_values: List[List[List[float]]]
+    pair_output_values: List[List[List[float]]]
+
+
 # Pydantic models for bope-state, state, dataset ('state' includes 'bope-state' plus auxiliary info) and serialied versions
 class BopeState(BaseModel):
     iteration: int
@@ -65,9 +74,13 @@ class BopeState(BaseModel):
     best_val: torch.Tensor
     input_bounds: torch.Tensor
     input_columns: List[str]
+    output_columns: List[str]
     last_iteration_duration: Optional[float]
     updated_at: Optional[datetime]
-    visualization_data: Optional[VisualizationDataModel] = None
+    visualization_data: Optional[VisualizationDataModel] = (
+        None  # not all bope state instances need this (or will have at each stage)
+    )
+    comparison_data: Optional[ComparisonDataModel] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -80,9 +93,11 @@ class SerializedBopeState(BaseModel):
     best_val: List[float]
     input_bounds: List[List[float]]
     input_columns: List[str]
+    output_columns: List[str]
     last_iteration_duration: float
     updated_at: datetime
     visualization_data: Optional[SerializedVisualizationDataModel] = None
+    comparison_data: Optional[ComparisonDataModel] = None
 
 
 class State(BaseModel):

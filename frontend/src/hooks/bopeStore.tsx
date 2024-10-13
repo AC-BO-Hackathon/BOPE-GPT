@@ -33,6 +33,12 @@ export interface VisualizationDataModel {
   num_outputs: number; // int in Python
 }
 
+export interface ComparisonDataModel {
+  pair_indices: number[][];
+  pair_input_values: number[][][];
+  pair_output_values: number[][][];
+}
+
 export interface BopeState {
   iteration: number;
   X: number[][];
@@ -40,8 +46,10 @@ export interface BopeState {
   best_val: number[];
   input_bounds: number[][];
   input_columns: string[];
+  output_columns: string[];
   last_iteration_duration: number;
   visualization_data: VisualizationDataModel
+  comparison_data: ComparisonDataModel
 }
 
 export interface InitializeBopeResponse { // interface equivalent to NextIterationBopeResponse 

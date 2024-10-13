@@ -19,7 +19,13 @@ import asyncio
 import aiofiles
 
 # Getting Pydantic models
-from models import BopeState, State, ContourDataModel, VisualizationDataModel
+from models import (
+    BopeState,
+    State,
+    ContourDataModel,
+    VisualizationDataModel,
+    ComparisonDataModel,
+)
 
 # Getting helper functions
 from helpers import matplotlib_visualization
@@ -181,6 +187,7 @@ async def initialize_bope(
     print(f"\n best_val = {best_val}")
 
     input_columns = column_names[:dim]
+    output_columns = column_names[dim:]
 
     # Generate visualization data
     default_input_pairs = [0, 1]
@@ -190,6 +197,18 @@ async def initialize_bope(
     )
     print(f"\n Vis_data.contour_data.keys(): {vis_data.contour_data.keys()}")
 
+    comparison_data = ComparisonDataModel(
+        pair_indices=comparisons.tolist(),
+        pair_input_values=[
+            [init_X[pair[0]].tolist(), init_X[pair[1]].tolist()] for pair in comparisons
+        ],
+        pair_output_values=[
+            [init_y[pair[0]].tolist(), init_y[pair[1]].tolist()] for pair in comparisons
+        ],
+    )
+
+    print(f"\n comparison_data = {comparison_data}")
+
     return BopeState(
         iteration=1,  # initialization iteration
         X=init_X,
@@ -198,8 +217,10 @@ async def initialize_bope(
         best_val=best_val,
         input_bounds=input_bounds,
         input_columns=input_columns,
+        output_columns=output_columns,
         last_iteration_duration=None,
         updated_at=None,
+        comparison_data=comparison_data,
         visualization_data=vis_data,
     )
 
@@ -241,12 +262,49 @@ async def run_next_iteration(
     )
     print(f"\n Vis_data.contour_data.keys(): {vis_data.contour_data.keys()}")
 
+    new_comparisons = comps[-q_comp_cycle:]
+
+    y = utility(X, fischer_model)
+
+    print(f"\n new_comparison = {new_comparisons}")
+    print(f"\n X = {X}")
+    print(f"\n y = {utility(X, fischer_model)}")
+
+    new_comparison_data = ComparisonDataModel(
+        pair_indices=new_comparisons.tolist(),
+        pair_input_values=[
+            [X[int(pair[0])].tolist(), X[int(pair[1])].tolist()]
+            for pair in new_comparisons
+        ],
+        pair_output_values=[
+            [y[int(pair[0])].tolist(), y[int(pair[1])].tolist()]
+            for pair in new_comparisons
+        ],
+    )
+
+    print(f"\n new_comparison_data = {new_comparison_data}")
+
+    if bope_state.comparison_data:
+        combined_comparison_data = ComparisonDataModel(
+            pair_indices=bope_state.comparison_data.pair_indices
+            + new_comparison_data.pair_indices,
+            pair_input_values=bope_state.comparison_data.pair_input_values
+            + new_comparison_data.pair_input_values,
+            pair_output_values=bope_state.comparison_data.pair_output_values
+            + new_comparison_data.pair_output_values,
+        )
+    else:
+        combined_comparison_data = new_comparison_data
+
+    print(f"\n combined_comparison_data = {combined_comparison_data}")
+
     bope_state: BopeState = bope_state.model_copy(
         update={
             "iteration": bope_state.iteration + 1,
             "X": X,
             "comparisons": comps,
             "visualization_data": vis_data,
+            "comparison_data": combined_comparison_data,
         }
     )
 
@@ -305,37 +363,6 @@ def generate_contour_visualization_data(
                 non_ij_ranges[k] = torch.linspace(
                     input_bounds[0, k], input_bounds[1, k], 10
                 )
-
-        """
-        # Iterate over all combinations of non i and j inputs
-        for values in torch.cartesian_prod(*non_ij_ranges.values()):
-            for idx, k in enumerate(non_ij_ranges.keys()):
-                X[:, :, k] = values[idx]
-
-            print(
-                f"\n Getting model predictions for pair- {pair} with non i and j inputs: {values}"
-            )
-
-            # print(f"\n Getting model predictions for pair- {pair}:")
-
-            # Get model predictions
-            with torch.no_grad():
-                posterior = model.posterior(X.reshape(-1, num_inputs))
-                mean = posterior.mean.reshape(resolution, resolution, num_outputs)
-                std = posterior.stddev.reshape(resolution, resolution, num_outputs)
-
-            # print(
-            #    f"\nModel predictions:\nposterior: {posterior}\nmean: {mean}\nstd: {std}"
-            # )
-
-            # Store contour data for each output dimension
-            contour_data[f"{pair}_{values}"] = ContourDataModel(
-                x=grid_x.numpy(),  # converting from Torch tensor to numpy array for Matplotlib compatibility
-                y=grid_y.numpy(),
-                mean=[mean[:, :, k].numpy() for k in range(num_outputs)],
-                std=[std[:, :, k].numpy() for k in range(num_outputs)],
-            )
-            """
 
         for values in torch.cartesian_prod(*non_ij_ranges.values()):
             for idx, k in enumerate(non_ij_ranges.keys()):

@@ -128,13 +128,16 @@ const Home = () => {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <Label className="px-2 font-bold" htmlFor="uploadDataset">Upload Dataset</Label>
+            <Label className="px-2 font-bold" htmlFor="uploadDataset">
+            {all_columns.length > 0? (
+              "Dataset Uploaded"
+            ) : ( 
+              "Upload Dataset"
+            )}
+            </Label>
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Input id="upload_dataset" type="file" onChange={handleChange} />
             </div>
-            {all_columns.length > 0 && (
-                <span className="text-xs text-center text-muted-foreground text-green-500">Dataset processed</span>
-              )}
           </div>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
@@ -154,7 +157,26 @@ const Home = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="visualization">
-            <ParetoFrontsVisualization />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <Card className="col-span-7">
+                <CardHeader>
+                  <CardTitle>Gaussian Process</CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <GaussianProcessVisualization />
+                </CardContent>
+              </Card>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 py-4">
+              <Card className="col-span-7">
+                <CardHeader>
+                  <CardTitle>Pareto Fronts</CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                <ParetoFrontsVisualization />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
           <TabsContent value="comparisons" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -325,26 +347,7 @@ const Home = () => {
                 </CardContent>
               </Card>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-7">
-                <CardHeader>
-                  <CardTitle>Gaussian Process</CardTitle>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  <GaussianProcessVisualization />
-                </CardContent>
-              </Card>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-7">
-                <CardHeader>
-                  <CardTitle>Acquisition Function</CardTitle>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  <AcquisitionFunctionVisualization />
-                </CardContent>
-              </Card>
-            </div>
+            {/*
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-7">
                 <CardHeader>
@@ -358,6 +361,8 @@ const Home = () => {
                 </CardContent>
               </Card>
             </div>
+            */
+            }
           </TabsContent>
         </Tabs>
       </div>
