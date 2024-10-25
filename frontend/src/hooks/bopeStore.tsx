@@ -39,6 +39,48 @@ export interface ComparisonDataModel {
   pair_output_values: number[][][];
 }
 
+/*
+export interface ParetoPointData {
+  x: number;
+  y: number;
+  is_pareto: boolean;
+  input_values: { [key: string]: number };
+  output_values: { [key: string]: number };
+}
+
+export interface ParetoPlotData {
+  x_label: string;
+  y_label: string;
+  points: ParetoPointData[];
+}
+
+export interface ParetoVisualizationData {
+  pareto_plots: ParetoPlotData[];
+  input_columns: string[];
+  output_columns: string[];
+}
+*/
+
+export interface DataPoint {
+  id: number;
+  input_values: { [key: string]: number };
+  output_values: { [key: string]: number };
+}
+
+export interface ParetoPlotData {
+  x_label: string;
+  y_label: string;
+  point_indices: number[];
+  is_pareto: boolean[];
+}
+
+export interface ParetoVisualizationData {
+  pareto_plots: ParetoPlotData[];
+  data_points: DataPoint[];
+  input_columns: string[];
+  output_columns: string[];
+}
+
 export interface BopeState {
   iteration: number;
   X: number[][];
@@ -50,6 +92,7 @@ export interface BopeState {
   last_iteration_duration: number;
   visualization_data: VisualizationDataModel
   comparison_data: ComparisonDataModel
+  pareto_plot_data?: ParetoVisualizationData; // Optional
 }
 
 export interface InitializeBopeResponse { // interface equivalent to NextIterationBopeResponse 

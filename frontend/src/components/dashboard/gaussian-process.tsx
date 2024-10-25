@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useBopeStore } from "@/hooks/bopeStore";
 import type { VisualizationDataModel, ContourDataModel } from "@/hooks/bopeStore";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
+import {
+    CardHeader,
+    CardTitle,
+    CardContent,
+    CardDescription,
+    Card,
+  } from "@/components/ui/card";
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -13,16 +20,31 @@ interface SliderData {
     default_range: number[];
 }
 
-
+    
 export function GaussianProcessVisualization(): JSX.Element {
     const { latestBopeData } = useBopeStore();
     const visualizationData = latestBopeData?.bope_state.visualization_data as VisualizationDataModel | null;
 
     const [sliderValues, setSliderValues] = useState<{ [key: string]: number }>({});
-    //const [plotData, setPlotData] = useState<Plotly.Data[]>([]); del
     const [meanPlotData, setMeanPlotData] = useState<Plotly.Data[]>([]);
     const [uncertaintyPlotData, setUncertaintyPlotData] = useState<Plotly.Data[]>([]);
 
+    const [containerWidth, setContainerWidth] = useState(0);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (containerRef.current) {
+                setContainerWidth(containerRef.current.offsetWidth);
+            }
+        };
+
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
+
+    const plotHeight = Math.max(400, Math.min(600, containerWidth * 0.6));
 
     // Function to find the closest contour key based on slider values
     const findClosestContourKey = (updatedSliderValues: { [key: string]: number }) => {
@@ -129,62 +151,104 @@ export function GaussianProcessVisualization(): JSX.Element {
 
 
     return (
-        <div>
-            {sliderInputs.map((key) => {
-                const data = visualizationData.slider_data[key] as SliderData | undefined;
-                if (!data) return null;
-                let sliderValue = sliderValues[key] ?? data.default_range[0];
-                if (sliderValue === undefined){
-                    sliderValue = 0;
-                }
-                return (
-                    <div key={key} className='mb-4 flex flex-row justify-center'>
-                        <label className="px-2">Input {parseInt(key.split('_')[1] ?? '0')+1}</label>
-                        <Slider
-                            min={data.min}
-                            max={data.max}
-                            step={(data.max - data.min) / (data.default_range.length - 1)}
-                            value={[sliderValue]}
-                            onValueChange={(value) => handleSliderChange(key, value[0] ?? 0)}
-                            className="w-1/2 px-5"
-                        />      
-                        <span>{sliderValues[key]?.toFixed(4) || (data.default_range[0] ?? 0).toFixed(4)}</span>
+        <div className="w-full" ref={containerRef}>
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Gaussian Process Visualization</CardTitle>
+                    <CardDescription>Adjust sliders to see changes in the plots</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col space-y-6">
+                    <div className="space-y-4 w-full">
+                        {sliderInputs.map((key) => {
+                            const data = visualizationData.slider_data[key] as SliderData | undefined;
+                            if (!data) return null;
+                            let sliderValue = sliderValues[key] ?? data.default_range[0];
+                            if (sliderValue === undefined){
+                                sliderValue = 0;
+                            }
+                            return (
+                                <div key={key} className='mb-4 flex flex-row justify-between items-center w-full'>
+                                    <label className="w-24 flex-shrink-0">Input {parseInt(key.split('_')[1] ?? '0')+1}</label>
+                                    <Slider
+                                        min={data.min}
+                                        max={data.max}
+                                        step={(data.max - data.min) / (data.default_range.length - 1)}
+                                        value={[sliderValue]}
+                                        onValueChange={(value) => handleSliderChange(key, value[0] ?? 0)}
+                                        className="flex-grow mx-4"
+                                    />      
+                                    <span className="w-20 text-right">{sliderValues[key]?.toFixed(4) || (data.default_range[0] ?? 0).toFixed(4)}</span>
+                                </div>
+                            );
+                        })}
                     </div>
-                );
-            })}
 
-            <div className="flex flex-col lg:justify-between">
-                <div className="w-1/2 p-2">
-                    <Plot
-                        data={meanPlotData}
-                        layout={{
-                            title: 'Mean Surface',
-                            scene: {
-                                xaxis: { title: 'Input 0' },
-                                yaxis: { title: 'Input 1' },
-                                zaxis: { title: 'Mean' },
-                            },
-                            autosize: true,
-                            //height: 100%,
-                            //width: '100%',
-                        }}
-                    />
-                </div>
+                    <div className="w-full" style={{ height: `${plotHeight}px` }}>
+                        <Plot
+                            data={meanPlotData}
+                            layout={{
+                                title: 'Mean Surface',
+                                autosize: true,
+                                scene: {
+                                    xaxis: { title: 'Input 1' },
+                                    yaxis: { title: 'Input 2' },
+                                    zaxis: { title: 'Mean' },
+                                },
+                                margin: { l: 0, r: 0, b: 0, t: 40 },
+                                annotations: [
+                                    {
+                                        x: 0.5,
+                                        y: -0.2,
+                                        xref: 'paper',
+                                        yref: 'paper',
+                                        showarrow: false,
+                                        text: 'Mean values here represent utility scores. \n(Higher utility = more relative preference and vice-versa)',
+                                        font: {
+                                            size: 10,
+                                            color: 'black'
+                                        },
+                                        opacity: 0.8,
+                                    },
+                                ],
+                            }}
+                            style={{ width: '100%', height: '100%' }}
+                            useResizeHandler={true}
+                            config={{ responsive: true }}
+                        />
+                    </div>
 
-                <div className="w-1/2 p-2">
-                    <Plot
-                        data={uncertaintyPlotData}
-                        layout={{
-                            title: 'Uncertainty Heatmap (standard deviation)',
-                            xaxis: { title: 'Input 0' },
-                            yaxis: { title: 'Input 1' },
-                            autosize: true,
-                            //height: 600,
-                            //width: 800,
-                        }}
-                    />
-                </div>
-            </div>
+                    <div className="w-full" style={{ height: `${plotHeight}px` }}>
+                        <Plot
+                            data={uncertaintyPlotData}
+                            layout={{
+                                title: 'Uncertainty Heatmap',
+                                autosize: true,
+                                xaxis: { title: 'Input 1' },
+                                yaxis: { title: 'Input 2' },
+                                margin: { l: 50, r: 50, b: 50, t: 40 },
+                                annotations: [
+                                    {
+                                        x: 0.5,
+                                        y: -0.3,
+                                        xref: 'paper',
+                                        yref: 'paper',
+                                        showarrow: false,
+                                        text: 'Uncertainty values represent confidence in predictions. (Lower std = more confidence and vice-versa)',
+                                        font: {
+                                            size: 10,
+                                            color: 'black'
+                                        },
+                                        opacity: 0.8,
+                                    },
+                                ],
+                            }}
+                            style={{ width: '100%', height: '100%' }}
+                            useResizeHandler={true}
+                            config={{ responsive: true }}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

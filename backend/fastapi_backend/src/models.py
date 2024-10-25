@@ -66,6 +66,28 @@ class ComparisonDataModel(BaseModel):
     pair_output_values: List[List[List[float]]]
 
 
+# Pydantic models for pareto plot data
+
+class DataPoint(BaseModel):
+    id: int
+    input_values: Dict[str, float]
+    output_values: Dict[str, float]
+
+
+class ParetoPlotData(BaseModel):
+    x_label: str
+    y_label: str
+    point_indices: List[int]
+    is_pareto: List[bool]
+
+
+class ParetoVisualizationData(BaseModel):
+    pareto_plots: List[ParetoPlotData]
+    data_points: List[DataPoint]
+    input_columns: List[str]
+    output_columns: List[str]
+
+
 # Pydantic models for bope-state, state, dataset ('state' includes 'bope-state' plus auxiliary info) and serialied versions
 class BopeState(BaseModel):
     iteration: int
@@ -81,6 +103,7 @@ class BopeState(BaseModel):
         None  # not all bope state instances need this (or will have at each stage)
     )
     comparison_data: Optional[ComparisonDataModel] = None
+    pareto_plot_data: Optional[ParetoVisualizationData] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -98,6 +121,7 @@ class SerializedBopeState(BaseModel):
     updated_at: datetime
     visualization_data: Optional[SerializedVisualizationDataModel] = None
     comparison_data: Optional[ComparisonDataModel] = None
+    pareto_plot_data: Optional[ParetoVisualizationData] = None
 
 
 class State(BaseModel):

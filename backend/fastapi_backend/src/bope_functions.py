@@ -1,6 +1,6 @@
 import os
 import warnings
-from typing import Any, Tuple, Dict
+from typing import Any, Tuple, Dict, List
 import numpy as np
 import torch
 import time
@@ -25,6 +25,9 @@ from models import (
     ContourDataModel,
     VisualizationDataModel,
     ComparisonDataModel,
+    ParetoPlotData,
+    DataPoint,
+    ParetoVisualizationData,
 )
 
 # Getting helper functions
@@ -209,6 +212,12 @@ async def initialize_bope(
 
     print(f"\n comparison_data = {comparison_data}")
 
+    pareto_data = generate_pareto_plot_data(
+        init_X, init_y, input_columns, output_columns
+    )
+
+    print(f"\n pareto_data = {pareto_data}")
+
     return BopeState(
         iteration=1,  # initialization iteration
         X=init_X,
@@ -222,6 +231,7 @@ async def initialize_bope(
         updated_at=None,
         comparison_data=comparison_data,
         visualization_data=vis_data,
+        pareto_plot_data=pareto_data,
     )
 
 
@@ -298,6 +308,12 @@ async def run_next_iteration(
 
     print(f"\n combined_comparison_data = {combined_comparison_data}")
 
+    pareto_data = generate_pareto_plot_data(
+        X, y, bope_state.input_columns, bope_state.output_columns
+    )
+
+    print(f"\n pareto_data = {pareto_data}")
+
     bope_state: BopeState = bope_state.model_copy(
         update={
             "iteration": bope_state.iteration + 1,
@@ -305,10 +321,66 @@ async def run_next_iteration(
             "comparisons": comps,
             "visualization_data": vis_data,
             "comparison_data": combined_comparison_data,
+            "pareto_plot_data": pareto_data,
         }
     )
 
     return bope_state
+
+
+def is_pareto_efficient(costs: np.ndarray) -> np.ndarray:
+    is_efficient = np.ones(costs.shape[0], dtype=bool)
+    for i, c in enumerate(costs):
+        if is_efficient[i]:
+            is_efficient[is_efficient] = np.any(costs[is_efficient] < c, axis=1)
+            is_efficient[i] = True
+    return is_efficient
+
+
+def generate_pareto_plot_data(
+    X: torch.Tensor,
+    y: torch.Tensor,
+    input_columns: List[str],
+    output_columns: List[str],
+) -> ParetoVisualizationData:
+    data_points = []
+    for i in range(X.shape[0]):
+        data_points.append(
+            DataPoint(
+                id=i,
+                input_values={
+                    col: X[i, idx].item() for idx, col in enumerate(input_columns)
+                },
+                output_values={
+                    col: y[i, idx].item() for idx, col in enumerate(output_columns)
+                },
+            )
+        )
+
+    pareto_plots = []
+    for i, j in combinations(range(len(output_columns)), 2):
+        x_values = y[:, i].numpy()
+        y_values = y[:, j].numpy()
+
+        # Determine Pareto frontier
+        costs = np.column_stack((-x_values, -y_values))
+        is_pareto = is_pareto_efficient(costs)
+
+        pareto_plots.append(
+            ParetoPlotData(
+                x_label=output_columns[i],
+                y_label=output_columns[j],
+                point_indices=list(range(len(data_points))),
+                is_pareto=is_pareto.tolist(),
+            )
+        )
+
+    return ParetoVisualizationData(
+        pareto_plots=pareto_plots,
+        data_points=data_points,
+        input_columns=input_columns,
+        output_columns=output_columns,
+    )
 
 
 def generate_contour_visualization_data(

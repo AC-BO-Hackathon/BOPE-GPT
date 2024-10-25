@@ -62,6 +62,7 @@ def serialize_bope_state(bope_state: BopeState) -> SerializedBopeState:
         updated_at=bope_state.updated_at,
         visualization_data=serialized_visualization_data,
         comparison_data=bope_state.comparison_data,
+        pareto_plot_data=bope_state.pareto_plot_data,
     )
 
 
@@ -101,6 +102,7 @@ def deserialize_bope_state(serialized_bope_state: SerializedBopeState) -> BopeSt
         updated_at=serialized_bope_state.updated_at,
         visualization_data=deserialized_visualization_data,
         comparison_data=serialized_bope_state.comparison_data,
+        pareto_plot_data=serialized_bope_state.pareto_plot_data,
     )
 
 

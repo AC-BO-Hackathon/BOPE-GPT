@@ -16,6 +16,7 @@ import { AcquisitionFunctionVisualization } from "@/components/dashboard/acquisi
 import { ParetoFrontsVisualization } from "@/components/dashboard/pareto-fronts";
 import { RecentPairwiseComparisonsTable } from "@/components/dashboard/recent-pairwise-comparisons";
 import { PairwiseComparisonsTable } from "@/components/dashboard/pairwise-comparisons";
+import { AllDataPointsTable } from "@/components/dashboard/all-data-points";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
@@ -146,11 +147,8 @@ const Home = () => {
             <TabsTrigger value="visualization">
               Visualizations
             </TabsTrigger>
-            <TabsTrigger value="comparisons">
-              Pairwise Comparisons
-            </TabsTrigger>
-            <TabsTrigger value="past" disabled>
-              Past Iteration Metrics
+            <TabsTrigger value="data_points">
+              Data
             </TabsTrigger>
             <TabsTrigger value="about" disabled>
               About BOPE-GPT
@@ -178,17 +176,25 @@ const Home = () => {
               </Card>
             </div>
           </TabsContent>
-          <TabsContent value="comparisons" className="space-y-4">
+          <TabsContent value="data_points" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-7">
+              <Card className="col-span-7 overflow-x-auto">
                 <CardHeader>
-                  <CardTitle>All Pairwise Comparisons</CardTitle>
+                  <CardTitle>Pairwise Comparisons</CardTitle>
                   <CardDescription>
-                    Picked by LLM so far
+                    Preferences picked by LLM based on entered prompt
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <PairwiseComparisonsTable />
+                </CardContent>
+              </Card>
+              <Card className="col-span-7 overflow-x-auto">
+                <CardHeader>
+                  <CardTitle>Explored Data Points</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AllDataPointsTable />  
                 </CardContent>
               </Card>
             </div>
