@@ -2,7 +2,7 @@
 import React, {useRef, useState, useEffect} from 'react';
 import dynamic from 'next/dynamic';
 import { useBopeStore } from "@/hooks/bopeStore";
-import type { ParetoVisualizationData } from "@/hooks/bopeStore";
+import type { ParetoVisualizationData, ParetoPlotData, DataPoint } from "@/hooks/bopeStore";
 import {
     CardHeader,
     CardTitle,
@@ -14,42 +14,43 @@ import {
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 
-
-function ParetoPlot({ plot, paretoData, index }) {
+function ParetoPlot({ plot, paretoData, index }: { plot: ParetoPlotData; paretoData: ParetoVisualizationData; index: number }) {
     const [tooltip, setTooltip] = useState({ visible: false, content: '', x: 0, y: 0 });
     const cardRef = useRef<HTMLDivElement>(null);
 
-    const generateTooltipContent = (dataPoint, isParetoOptimal) => {
+    const generateTooltipContent = (dataPoint: DataPoint, isParetoOptimal: boolean) => {
         let content = `<div style="font-size: 10px;">`;
         content += `<strong>Point ${dataPoint.id + 1}</strong><br>`;
         content += `Is Pareto: ${isParetoOptimal ? 'Yes' : 'No'}<br><br>`;
         
         content += '<strong>Inputs:</strong><br>';
         for (const [key, value] of Object.entries(dataPoint.input_values)) {
-            content += `${key}: ${parseFloat(value).toFixed(4)}<br>`;
+            content += `${key}: ${typeof value === 'number' ? value.toFixed(4) : value}<br>`;
         }
         
         content += '<br><strong>Outputs:</strong><br>';
         for (const [key, value] of Object.entries(dataPoint.output_values)) {
-            content += `${key}: ${parseFloat(value).toFixed(4)}<br>`;
+            content += `${key}: ${typeof value === 'number' ? value.toFixed(4) : value}<br>`;
         }
         
         content += '</div>';
         return content;
     };
 
-    const handlePlotHover = (event) => {
+    const handlePlotHover = (event: Plotly.PlotMouseEvent) => {
         const point = event.points[0];
-        if (point) {
+        if (point && point.pointIndex !== undefined) {
             const dataPoint = paretoData.data_points[point.pointIndex];
-            const isParetoOptimal = plot.is_pareto[point.pointIndex];
-            const content = generateTooltipContent(dataPoint, isParetoOptimal);
-            setTooltip({
-                visible: true,
-                content,
-                x: point.xaxis.l2p(point.x) + point.xaxis._offset + 5,
-                y: point.yaxis.l2p(point.y) + point.yaxis._offset + 5
-            });
+            const isParetoOptimal = plot.is_pareto[point.pointIndex] ?? false;
+            if (dataPoint) {
+                const content = generateTooltipContent(dataPoint, isParetoOptimal);
+                setTooltip({
+                    visible: true,
+                    content,
+                    x: point.xaxis?.l2p?.(point.x as number) ?? 0,
+                    y: point.yaxis?.l2p?.(point.y as number) ?? 0
+                });
+            }
         }
     };
 
@@ -71,8 +72,8 @@ function ParetoPlot({ plot, paretoData, index }) {
                     <Plot
                         data={[
                             {
-                                x: plot.point_indices.map(i => paretoData.data_points[i].output_values[plot.x_label]),
-                                y: plot.point_indices.map(i => paretoData.data_points[i].output_values[plot.y_label]),
+                                x: plot.point_indices.map(i => paretoData.data_points[i]?.output_values[plot.x_label] ?? null).filter(x => x !== null),
+                                y: plot.point_indices.map(i => paretoData.data_points[i]?.output_values[plot.y_label] ?? null).filter(y => y !== null),
                                 mode: 'markers',
                                 type: 'scatter',
                                 marker: {

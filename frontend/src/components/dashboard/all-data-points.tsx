@@ -26,7 +26,7 @@ export function AllDataPointsTable() {
 
   const { comparison_data, input_columns, output_columns } = bopeState;
   const allDataPoints = comparison_data.pair_indices.flat();
-  const uniqueDataPoints = Array.from(new Set(allDataPoints));
+  const uniqueDataPoints = Array.from(new Set(allDataPoints)).sort((a, b) => a - b);
 
   const totalPages = Math.ceil(uniqueDataPoints.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -55,9 +55,9 @@ export function AllDataPointsTable() {
           <TableBody>
             {currentDataPoints.map((dataPointId) => {
               const dataPointIndex = comparison_data.pair_indices.findIndex(pair => pair.includes(dataPointId));
-              const isFirstInPair = comparison_data.pair_indices[dataPointIndex][0] === dataPointId;
-              const inputValues = comparison_data.pair_input_values[dataPointIndex][isFirstInPair ? 0 : 1];
-              const outputValues = comparison_data.pair_output_values[dataPointIndex][isFirstInPair ? 0 : 1];
+              const isFirstInPair = dataPointIndex !== -1 && comparison_data.pair_indices[dataPointIndex]?.[0] === dataPointId;
+              const inputValues = comparison_data.pair_input_values[dataPointIndex]?.[isFirstInPair ? 0 : 1] ?? [];
+              const outputValues = comparison_data.pair_output_values[dataPointIndex]?.[isFirstInPair ? 0 : 1] ?? [];
 
               return (
                 <TableRow key={dataPointId}>
