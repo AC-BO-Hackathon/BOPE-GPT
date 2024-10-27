@@ -72,11 +72,6 @@ const NextIterationFormSchema = z.object({
     .transform((val) => Boolean(val))
     .default(false)
     .optional(),
-  enable_llm_explanations: z
-    .union([z.boolean(), z.number()])
-    .transform((val) => Boolean(val))
-    .default(false)
-    .optional(),
 })
 
 const InitializationFormSchema = z.object({
@@ -122,7 +117,6 @@ const InitializationFormSchema = z.object({
       }),
     ),
   enable_flexible_prompt: z.boolean().default(false).optional(),
-  enable_llm_explanations: z.boolean().default(false).optional(),
 })
 
 
@@ -497,28 +491,6 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="enable_llm_explanations"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            LLM Explanations
-                          </FormLabel>
-                          <FormDescription>
-                            Enable pairwise comparison explanations from LLM
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
                 <div className="flex justify-center">
                   <Button type="submit">Initialize BOPE Modelling</Button>
                 </div>
@@ -589,33 +561,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                             //onCheckedChange={field.onChange}
                             onCheckedChange={(checked: boolean) => {
                               field.onChange(checked);
-                              console.log('LLM explanations changed:', checked);
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={IterationForm.control}
-                    name="enable_llm_explanations"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            LLM Explanations
-                          </FormLabel>
-                          <FormDescription>
-                            Enable pairwise comparison explanations from LLM
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            //onCheckedChange={field.onChange}
-                            onCheckedChange={(checked: boolean) => {
-                              field.onChange(checked);
-                              console.log('LLM explanations changed:', checked);
+                              console.log('Flexible Prompt Setup Toggle changed:', checked);
                             }}
                           />
                         </FormControl>

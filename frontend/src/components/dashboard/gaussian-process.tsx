@@ -143,7 +143,7 @@ export function GaussianProcessVisualization(): JSX.Element {
     };
 
     if (!visualizationData) {
-        return <div>N/A (No model initialized)</div>;
+        return <div>No GP data available</div>;
     }
 
     const sliderInputs = Object.keys(visualizationData.slider_data).slice(2); // Inputs from 2 onward

@@ -95,11 +95,9 @@ def generate_data(
 
 
 async def generate_comparisons_llm(
-    y: torch.Tensor, n_comp: int, replace: bool = False
+    y: torch.Tensor, n_comp: int, prompt_message: str, replace: bool = False
 ) -> torch.Tensor:
-    all_pairs = np.array(
-        list(combinations(range(y.shape[0]), 2))
-    )  # len(y)=2 (hardcoded) when this is called from next iteration, and len(y)=q_inidata if called during initialization
+    all_pairs = np.array(list(combinations(range(y.shape[0]), 2)))
     comp_pairs = all_pairs[
         np.random.choice(range(len(all_pairs)), n_comp, replace=replace)
     ]
@@ -108,8 +106,8 @@ async def generate_comparisons_llm(
     for opto in comp_pairs:
         firstoption, secondoption = opto[0], opto[1]
         numfirst, numsecond = y[firstoption, :], y[secondoption, :]
-        mess = f"Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them. Option A: regime of {numfirst[0]:.1f} CO conversion, {numfirst[1]:.1f} methane production, {numfirst[2]:.1f} paraffins, {numfirst[3]:.1f} light olefins. Option B: regime of {numsecond[0]:.1f} CO conversion, {numsecond[1]:.1f} methane production, {numsecond[2]:.1f} paraffins, {numsecond[3]:.1f} light olefins. Choose only one option, only answer with 'Option A' or 'Option B'"
-        response = co.chat(message=mess)
+        full_message = f"{prompt_message}. Option A: regime of {numfirst.tolist()}. Option B: regime of {numsecond.tolist()}. Choose only one option, only answer with 'Option A' or 'Option B'"
+        response = co.chat(message=full_message)
         print(f"\n LLM Response = {response}")
         new_pairs.append(
             opto.tolist() if "Option A" in response.text else list(reversed(opto))
@@ -136,6 +134,7 @@ async def make_new_data(
     comps: torch.Tensor,
     q_comp: int,
     fischer_model: Sequential,
+    prompt_message: str,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     next_X = next_X.to(X)
     x_2 = tf.convert_to_tensor(next_X, dtype=tf.float32)
@@ -143,7 +142,7 @@ async def make_new_data(
         x_2, fischer_model
     )  # outputs for the inputs chosen by acquistion function are generated via the ground truth model
     next_comps = await generate_comparisons_llm(
-        next_y, n_comp=q_comp
+        next_y, n_comp=q_comp, prompt_message=prompt_message
     )  # llm compares the two outputs and rearranges them in the order of preference
     comps = torch.cat([comps, next_comps + X.shape[-2]])
     X = torch.cat([X, next_X])
@@ -156,8 +155,9 @@ async def initialize_bope(
     q_comp_ini: int,
     bounds: list,
     column_names: list[str],
+    llm_prompt: str,
 ) -> BopeState:
-    print(f"\n Initializing BOPE...")
+    print("\n Initializing BOPE...")
     torch.manual_seed(0)
     np.random.seed(0)
 
@@ -178,13 +178,15 @@ async def initialize_bope(
     init_y = generate_data(init_X, fischer_model, dim=dim)
 
     print(f"\n init_x = {init_X}\n init_y = {init_y}\n")
-    comparisons = await generate_comparisons_llm(init_y, q_comp_ini)
+    comparisons = await generate_comparisons_llm(
+        init_y, q_comp_ini, prompt_message=llm_prompt
+    )
 
     print(f"\nGenerated LLM comparisons = {comparisons}")
 
     _, model = init_and_fit_model(init_X, comparisons)
 
-    print(f"\n Initialized model.")
+    print("\n Initialized model.")
     best_val = utility(init_X, fischer_model).max(dim=0).values
 
     print(f"\n best_val = {best_val}")
@@ -220,6 +222,7 @@ async def initialize_bope(
 
     return BopeState(
         iteration=1,  # initialization iteration
+        llm_prompt=llm_prompt,
         X=init_X,
         comparisons=comparisons,
         model=model,
@@ -236,7 +239,11 @@ async def initialize_bope(
 
 
 async def run_next_iteration(
-    bope_state: BopeState, model: Any, q_eubo: int = 2, q_comp_cycle: int = 1
+    bope_state: BopeState,
+    model: Any,
+    llm_prompt: str,
+    q_eubo: int = 2,
+    q_comp_cycle: int = 1,
 ) -> BopeState:
     NUM_RESTARTS, RAW_SAMPLES = 3, 512 if not SMOKE_TEST else 8
 
@@ -254,7 +261,12 @@ async def run_next_iteration(
     print(f"\n next_X = {next_X}")
 
     X, comps = await make_new_data(
-        bope_state.X, next_X, bope_state.comparisons, q_comp_cycle, fischer_model
+        bope_state.X,
+        next_X,
+        bope_state.comparisons,
+        q_comp_cycle,
+        fischer_model,
+        llm_prompt,
     )
 
     print(f"\n X, comps = {X}, {comps}")
@@ -317,6 +329,7 @@ async def run_next_iteration(
     bope_state: BopeState = bope_state.model_copy(
         update={
             "iteration": bope_state.iteration + 1,
+            "llm_prompt": llm_prompt,
             "X": X,
             "comparisons": comps,
             "visualization_data": vis_data,

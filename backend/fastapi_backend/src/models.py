@@ -12,7 +12,6 @@ class InitializeBOPERequest(BaseModel):
     num_initial_samples: int = 5  # 5
     num_initial_comparisons: int = 10  # 10
     enable_flexible_prompt: Optional[bool] = False
-    enable_llm_explanations: Optional[bool] = False
     state_id: str = (
         "Insert whatever state ID received after hitting the `upload_dataset` endpoint"
     )
@@ -20,7 +19,6 @@ class InitializeBOPERequest(BaseModel):
 
 class RunNextIterationRequest(BaseModel):
     llm_prompt: str
-    comparison_explanations: bool = False
     enable_flexible_prompt: bool = False
     state_id: str
 
@@ -68,6 +66,7 @@ class ComparisonDataModel(BaseModel):
 
 # Pydantic models for pareto plot data
 
+
 class DataPoint(BaseModel):
     id: int
     input_values: Dict[str, float]
@@ -91,6 +90,7 @@ class ParetoVisualizationData(BaseModel):
 # Pydantic models for bope-state, state, dataset ('state' includes 'bope-state' plus auxiliary info) and serialied versions
 class BopeState(BaseModel):
     iteration: int
+    llm_prompt: str
     X: torch.Tensor
     comparisons: torch.Tensor
     best_val: torch.Tensor
@@ -111,6 +111,7 @@ class BopeState(BaseModel):
 
 class SerializedBopeState(BaseModel):
     iteration: int
+    llm_prompt: str
     X: List[List[float]]
     comparisons: List[List[float]]
     best_val: List[float]

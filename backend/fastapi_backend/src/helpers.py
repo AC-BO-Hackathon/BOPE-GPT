@@ -50,6 +50,7 @@ def serialize_bope_state(bope_state: BopeState) -> SerializedBopeState:
 
     return SerializedBopeState(
         iteration=bope_state.iteration,
+        llm_prompt=bope_state.llm_prompt,
         X=bope_state.X.tolist(),
         comparisons=bope_state.comparisons.tolist(),
         best_val=bope_state.best_val.tolist(),
@@ -90,6 +91,7 @@ def deserialize_bope_state(serialized_bope_state: SerializedBopeState) -> BopeSt
 
     return BopeState(
         iteration=serialized_bope_state.iteration,
+        llm_prompt=serialized_bope_state.llm_prompt,
         X=torch.tensor(serialized_bope_state.X),
         comparisons=torch.tensor(serialized_bope_state.comparisons),
         best_val=torch.tensor(serialized_bope_state.best_val),

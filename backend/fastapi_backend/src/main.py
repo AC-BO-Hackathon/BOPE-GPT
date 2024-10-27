@@ -191,7 +191,6 @@ async def update_bope_state(
     bope_state.last_iteration_duration = iteration_duration
     bope_state.updated_at = datetime.now(timezone.utc)
     serialized_state = serialize_bope_state(bope_state).model_dump()
-    print(f"\n serialized_state = {serialized_state}")
     await collection.update_one(
         {"_id": ObjectId(state_id)}, {"$set": {"bope_state": serialized_state}}
     )
@@ -221,9 +220,8 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
         q_comp_ini = request.num_initial_comparisons
 
         logging.info(
-            "Initializing BOPE with llm_prompt='%s', enable_llm_explanations=%s, enable_flexible_prompt=%s, num_inputs=%d, q_inidata=%d, q_comp_ini=%d, state_id=%s",
+            "Initializing BOPE with llm_prompt='%s', enable_flexible_prompt=%s, num_inputs=%d, q_inidata=%d, q_comp_ini=%d, state_id=%s",
             request.llm_prompt,
-            request.enable_llm_explanations,
             request.enable_flexible_prompt,
             request.num_inputs,
             request.num_initial_samples,
@@ -238,7 +236,7 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
         column_names = state.get("column_names")
 
         bope_state: BopeState = await initialize_bope(
-            dim, q_inidata, q_comp_ini, bounds, column_names
+            dim, q_inidata, q_comp_ini, bounds, column_names, request.llm_prompt
         )
         end_time = time.time()
         iteration_duration = round(end_time - start_time, 5)
@@ -281,9 +279,8 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
 async def run_next_iteration_endpoint(request: RunNextIterationRequest):
     try:
         logging.info(
-            "Running next BOPE iteration with llm_prompt='%s', comparison_explanations=%s, enable_flexible_prompt=%s, state_id=%s",
+            "Running next BOPE iteration with llm_prompt='%s', enable_flexible_prompt=%s, state_id=%s",
             request.llm_prompt,
-            request.comparison_explanations,
             request.enable_flexible_prompt,
             request.state_id,
         )
@@ -300,8 +297,19 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 
         _, model = init_and_fit_model(bope_state.X, bope_state.comparisons)
 
-        # Run the next iteration
-        bope_state: BopeState = await run_next_iteration(bope_state, model)
+        # Determine which prompt to use based on enable_flexible_prompt
+        prompt_to_use = (
+            request.llm_prompt
+            if request.enable_flexible_prompt
+            else bope_state.llm_prompt
+        )
+
+        # Run the next iteration with the determined prompt
+        bope_state: BopeState = await run_next_iteration(
+            bope_state, model, prompt_to_use
+        )
+
+        print("next iteration run")
         end_time = time.time()
         iteration_duration = round(end_time - start_time, 5)
 
@@ -313,6 +321,7 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 
         response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
 
+        print("next iteration data serialized")
         summarizing_start_time = time.time()
         brief_bope_state = brief_summary(response_bope_state.model_dump())
         summarizing_end_time = time.time()

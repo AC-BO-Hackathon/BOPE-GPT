@@ -140,7 +140,7 @@ export function ParetoFrontsVisualization() {
     const paretoData = latestBopeData?.bope_state.pareto_plot_data as ParetoVisualizationData | null;
 
     if (!paretoData) {
-        return <div>No Pareto plot data available</div>;
+        return <div>No pareto plot data available</div>;
     }
 
     return (
