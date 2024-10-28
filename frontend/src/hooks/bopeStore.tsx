@@ -26,9 +26,15 @@ export interface ContourDataModel {
   std: number[][][]; // List[List[List[float]]] in Python
 }
 
+export interface SliderData {
+  min: number;
+  max: number;
+  default_range: number[];
+}
+
 export interface VisualizationDataModel {
   contour_data: { [key: string]: ContourDataModel }; // Dict[str, SerializedContourDataModel] in Python
-  slider_data: { [key: string]: { [key: string]: any } }; // Dict[str, Dict[str, Any]] in Python
+  slider_data: { [key: string]: SliderData }; // Dict[str, SliderData] in Python
   num_inputs: number; // int in Python
   num_outputs: number; // int in Python
 }

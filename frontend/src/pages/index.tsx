@@ -8,31 +8,15 @@ import {
   CardDescription,
   Card,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
 import { GaussianProcessVisualization } from "@/components/dashboard/gaussian-process";
-import { AcquisitionFunctionVisualization } from "@/components/dashboard/acquisition-function";
 import { ParetoFrontsVisualization } from "@/components/dashboard/pareto-fronts";
-import { RecentPairwiseComparisonsTable } from "@/components/dashboard/recent-pairwise-comparisons";
 import { PairwiseComparisonsTable } from "@/components/dashboard/pairwise-comparisons";
 import { AllDataPointsTable } from "@/components/dashboard/all-data-points";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 
-//getting ui components for table
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { string } from "zod";
 import type { UploadDatasetSuccessResponse } from "../hooks/bopeStore";
 
 const Home = () => {
@@ -47,8 +31,6 @@ const Home = () => {
   // if there's no visualization data yet (if the BOPE initialization hasn't been done yet)
   const is_bope_initialized = latestBopeData !== null;
   const all_columns = uploadedDatasetData?.column_names || []; 
-
-  const visualizationData = latestBopeData?.bope_state.visualization_data || null;
 
   const { toast } = useToast();  
 
@@ -179,7 +161,7 @@ const Home = () => {
                     optimization process instead.
                     <br></br>
                     <br></br>
-                    This "preference" can also be picked through an LLM (the human-like evaluator) if correctly prompted- which is what BOPE-GPT does. 
+                    This &quot;preference&quot; can also be picked through an LLM (the human-like evaluator) if correctly prompted- which is what BOPE-GPT does. 
                     <br></br>
                     <br></br>
                     After each iteration, the list of explored data points expands- Pareto plot and preference visualizations of the pairwiseGP model representing these can then be used 
@@ -187,10 +169,10 @@ const Home = () => {
                     <br></br>
                     <br></br>
                     <br></br>
-                    <p className="font-bold">Who's this for?</p>
+                    <p className="font-bold">Who&apos;s this for?</p>
                     <br></br>
-                    This is for people who want to optimize for a multi-objective system they're trying to model and already have a distribution of input-output data 
-                    in a dataset, but don't have a good way to define the optimization goals numerically- although they can in natural language. 
+                    This is for people who want to optimize for a multi-objective system they&apos;re trying to model and already have a distribution of input-output data 
+                    in a dataset, but don&apos;t have a good way to define the optimization goals numerically- although they can in natural language. 
                     <br></br>
                     <br></br>
                     The BOPE-GPT process is a useful interface for this kind of optimization, and has built in visualizations to help see the latent utility defined in natural language 
@@ -219,7 +201,7 @@ const Home = () => {
                     <div className="pl-4">
                     <p className="font-semibold">LLM Prompt:</p>
                     To maximize all outputs, something like this could be used: <p className="">
-                      &quot;Suppose you're managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them&quot;
+                      &quot;Suppose you&apos;re managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them&quot;
                     </p>
                     <br></br>
                     <p className="font-semibold">Number of Input Features:</p>

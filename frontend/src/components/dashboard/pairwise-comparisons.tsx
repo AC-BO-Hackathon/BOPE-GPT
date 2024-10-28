@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { useBopeStore } from "@/hooks/bopeStore";
-import type { ComparisonDataModel, BopeState } from "@/hooks/bopeStore";
+import type { BopeState } from "@/hooks/bopeStore";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react"
 

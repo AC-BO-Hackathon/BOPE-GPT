@@ -1,5 +1,5 @@
 //"use client";
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState} from 'react';
 import dynamic from 'next/dynamic';
 import { useBopeStore } from "@/hooks/bopeStore";
 import type { ParetoVisualizationData, ParetoPlotData, DataPoint } from "@/hooks/bopeStore";

@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useBopeStore } from "@/hooks/bopeStore";
-import type { VisualizationDataModel, ContourDataModel } from "@/hooks/bopeStore";
-import { cn } from "@/lib/utils";
+import type { VisualizationDataModel, SliderData } from "@/hooks/bopeStore";
 import { Slider } from "@/components/ui/slider";
 import {
     CardHeader,
@@ -13,12 +12,6 @@ import {
   } from "@/components/ui/card";
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
-
-interface SliderData {
-    min: number;
-    max: number;
-    default_range: number[];
-}
 
     
 export function GaussianProcessVisualization(): JSX.Element {
@@ -47,7 +40,7 @@ export function GaussianProcessVisualization(): JSX.Element {
     const plotHeight = Math.max(400, Math.min(600, containerWidth * 0.6));
 
     // Function to find the closest contour key based on slider values
-    const findClosestContourKey = (updatedSliderValues: { [key: string]: number }) => {
+    const findClosestContourKey = useCallback((updatedSliderValues: { [key: string]: number }) => {
         if (!visualizationData) return;
 
         const contourKeys = Object.keys(visualizationData.contour_data);
@@ -78,10 +71,9 @@ export function GaussianProcessVisualization(): JSX.Element {
         }, { key: '', diff: Infinity });
 
         return closestKey.key;
-    };
+    }, [visualizationData]);
 
-
-    const generatePlotData = (updatedSliderValues: { [key: string]: number }) => {
+    const generatePlotData = useCallback((updatedSliderValues: { [key: string]: number }) => {
         if (!visualizationData) return;
 
         const closestContourKey = findClosestContourKey(updatedSliderValues);
@@ -116,7 +108,7 @@ export function GaussianProcessVisualization(): JSX.Element {
                 showscale: true,
             } as Plotly.Data,
         ]);
-    };
+    }, [visualizationData, findClosestContourKey]);
 
     useEffect(() => {
         if (visualizationData) {
@@ -132,7 +124,7 @@ export function GaussianProcessVisualization(): JSX.Element {
             // Set initial plot data based on initial slider values
             generatePlotData(initialSliderValues);
         }
-    }, [visualizationData]);
+    }, [visualizationData, generatePlotData]);
 
     const handleSliderChange = (inputKey: string, newValue: number) => {
         const updatedSliderValues = { ...sliderValues, [inputKey]: newValue };

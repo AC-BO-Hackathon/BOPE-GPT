@@ -23,14 +23,12 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
-import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
 import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardDescription,
   Card,
 } from "@/components/ui/card";
 
@@ -42,7 +40,6 @@ import {
 } from "@/components/layout/subnav-accordion";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
-import { ConstructionIcon } from "lucide-react";
 //import { Input } from "postcss";
 
 import type { InitializeBopeResponse, BopeState, IterationBopeResponse } from '../../hooks/bopeStore';
@@ -126,7 +123,6 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
     const { isOpen } = useSidebar();
     const [openItem, setOpenItem] = useState("");
     const [lastOpenItem, setLastOpenItem] = useState("");
-    const [userInput, setUserInput] = useState(''); // New state for user input
 
     const all_columns = uploadedDatasetData?.column_names || []; 
 
@@ -141,7 +137,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
             setLastOpenItem(openItem);
             setOpenItem("");
         }
-    }, [isOpen]);
+    }, [isOpen, lastOpenItem, openItem]);
 
     const form = useForm<z.infer<typeof InitializationFormSchema>>({
       resolver: zodResolver(InitializationFormSchema),
@@ -549,10 +545,10 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-base">
-                            Flexible Prompt Setup
+                            Use New Prompt
                           </FormLabel>
                           <FormDescription>
-                            Enable flexible prompt setup across iterations
+                            Toggle true to use new prompt^ or keep false to use previous
                           </FormDescription>
                         </div>
                         <FormControl>
