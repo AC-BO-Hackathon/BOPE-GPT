@@ -4,7 +4,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 import pandas as pd
-from typing import List, Optional
+from typing import List, Optional, Any
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
@@ -13,12 +13,33 @@ import torch
 import json
 from pydantic import BaseModel
 from bson import ObjectId
+import time
+
+# Import Pydantic models
+from models import (
+    InitializeBOPERequest,
+    RunNextIterationRequest,
+    BopeState,
+    State,
+    SerializedBopeState,
+    SerializedState,
+    UploadedDataset,
+)
 
 # Import BOPE-related functions
 from bope_functions import initialize_bope, run_next_iteration
 
+# Import helper functions
+from helpers import (
+    serialize_bope_state,
+    deserialize_bope_state,
+    serialize_state,
+    brief_summary,
+)
+
 # Load environment variables
 load_dotenv()
+
 
 # Configure logging
 logging.basicConfig(
@@ -26,6 +47,18 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler("app.log"), logging.StreamHandler()],
 )
+
+
+class ExcludeWatchfilesInfoFilter(logging.Filter):
+    def filter(self, record):
+        return not (
+            record.name == "watchfiles.main"
+            and "1 change detected" in record.getMessage()
+        )
+
+
+watchfiles_logger = logging.getLogger("watchfiles.main")
+watchfiles_logger.addFilter(ExcludeWatchfilesInfoFilter())
 
 # FastAPI app setup
 app = FastAPI()
@@ -35,6 +68,7 @@ origins = [
     "http://localhost",
     "http://localhost:8080",
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://bope-gpt.vercel.app/",
 ]
 
@@ -52,30 +86,11 @@ async def get_database():
     client = AsyncIOMotorClient(
         os.getenv("MONGODB_URI", "your_mongodb_connection_string_here")
     )
-    print(f"Async Motor client initialized: {client}")
+    logging.info(f"Async Motor client initialized: {client}")
     return client.bope_db
 
 
-# Pydantic models for request validation
-class InitializeBOPERequest(BaseModel):
-    llm_prompt: str = "Enter a prompt here"  # ""
-    comparison_explanations: bool = False
-    num_inputs: int = 4  # 4
-    num_initial_samples: int = 5  # 5
-    num_initial_comparisons: int = 10  # 10
-    enable_flexible_prompt: bool = False
-    enable_llm_explanations: bool = False
-    state_id: str = (
-        "Insert whatever state ID received after hitting the `upload_dataset` endpoint"
-    )
-
-
-class RunNextIterationRequest(BaseModel):
-    llm_prompt: str
-    comparison_explanations: bool = False
-    state_id: str
-
-
+# WIP: replace `on_event` (deprecated) with fastapi lifecycle event handler
 @app.on_event("startup")
 async def startup_db_client():
     app.mongodb = await get_database()
@@ -117,13 +132,12 @@ async def upload_dataset(file: UploadFile = File(...)):
     try:
         collection = app.mongodb.datasets
         data_dict = df.to_dict("records")
-        result = await collection.insert_one(
-            {
-                "data": data_dict,
-                "column_names": column_names,
-                "uploaded_at": datetime.now(timezone.utc),
-            }
+        uploaded_dataset = UploadedDataset(
+            data=data_dict,
+            column_names=column_names,
+            uploaded_at=datetime.now(timezone.utc),
         )
+        result = await collection.insert_one(uploaded_dataset.model_dump())
         dataset_id = str(result.inserted_id)
         logging.info(f"New csv saved as document id: {dataset_id}")
 
@@ -134,7 +148,7 @@ async def upload_dataset(file: UploadFile = File(...)):
             {"_id": ObjectId(state_id)}, {"$set": {"dataset_id": dataset_id}}
         )
 
-        print(f"New State created with state id: {state_id}")
+        logging.info(f"New State created with state id: {state_id}")
 
         return {
             "message": "Dataset uploaded successfully",
@@ -148,110 +162,109 @@ async def upload_dataset(file: UploadFile = File(...)):
 
 
 # handlers for overall state (inclusive of bope_state if present)
-async def create_new_state(column_names, bounds):
+async def create_new_state(column_names: List[str], bounds: List[List[float]]) -> str:
     collection = app.mongodb.bope_states
-    new_state = {
-        "created_at": datetime.now(timezone.utc),
-        "dataset_id": None,
-        "column_names": column_names,
-        "bounds": bounds,  # holds bounds for ALL columns of dataset
-        "bope_state": None,
-    }
-    result = await collection.insert_one(new_state)
+    new_state = State(
+        created_at=datetime.now(timezone.utc),
+        dataset_id=None,
+        column_names=column_names,
+        bounds=bounds,
+        bope_state=None,
+    )
+    result = await collection.insert_one(new_state.model_dump())
     return str(result.inserted_id)
 
 
-async def get_state(state_id):
+async def get_state(state_id: str) -> Optional[SerializedState]:
     collection = app.mongodb.bope_states
     state_doc = await collection.find_one({"_id": ObjectId(state_id)})
     if state_doc is None:
         return None
-    return state_doc
+    return SerializedState(**state_doc)
 
 
-# handlers for bope_state (a subset of overall state)
-async def update_bope_state(state_id, bope_state):
+# mongodb handlers for bope_state (subset of overall state)
+async def update_bope_state(
+    state_id: str, bope_state: BopeState, iteration_duration: float
+):  # serializes bope state and updates mongodb state doc
     collection = app.mongodb.bope_states
-    serialized_state = {
-        "iteration": bope_state["iteration"],
-        "X": bope_state["X"].tolist(),
-        "comparisons": bope_state["comparisons"].tolist(),
-        "best_val": bope_state["best_val"].tolist(),
-        "input_bounds": [
-            b.tolist() for b in bope_state["input_bounds"]
-        ],  # holds bounds for input columns only
-        "input_columns": bope_state["input_columns"],
-        "updated_at": datetime.now(timezone.utc),
-    }
+    bope_state.last_iteration_duration = iteration_duration
+    bope_state.updated_at = datetime.now(timezone.utc)
+    serialized_state = serialize_bope_state(bope_state).model_dump()
     await collection.update_one(
         {"_id": ObjectId(state_id)}, {"$set": {"bope_state": serialized_state}}
     )
 
 
-async def retrieve_bope_state(state_id):
+async def retrieve_bope_state(
+    state_id: str,
+) -> Optional[BopeState]:  # deserializes bope state retrieved from mongodb
     collection = app.mongodb.bope_states
     state_doc = await collection.find_one({"_id": ObjectId(state_id)})
     if state_doc is None or state_doc.get("bope_state") is None:
         return None
 
-    bope_state = state_doc["bope_state"]
-    state = {
-        "iteration": bope_state["iteration"],
-        "X": torch.tensor(bope_state["X"]),
-        "comparisons": torch.tensor(bope_state["comparisons"]),
-        "best_val": torch.tensor(bope_state["best_val"]),
-        "input_bounds": torch.stack(
-            [torch.tensor(b) for b in bope_state["input_bounds"]]
-        ),  # holds bounds for input columns only
-        "input_columns": bope_state["input_columns"],
-        "model": None,  # We'll need to reconstruct the model
-    }
-    return state
+    serialized_bope_state: SerializedBopeState = SerializedBopeState(
+        **state_doc["bope_state"]
+    )
+    bope_state: BopeState = deserialize_bope_state(serialized_bope_state)
+    return bope_state
 
 
 @app.post("/initialize_bope/")
 async def initialize_bope_endpoint(request: InitializeBOPERequest):
     try:
+        start_time = time.time()
         dim = request.num_inputs
         q_inidata = request.num_initial_samples
         q_comp_ini = request.num_initial_comparisons
 
-        # add a logging.info statement with request parameters:
         logging.info(
-            "Initializing BOPE with dim=%d, q_inidata=%d, q_comp_ini=%d, state_id=%s",
+            "Initializing BOPE with llm_prompt='%s', enable_flexible_prompt=%s, num_inputs=%d, q_inidata=%d, q_comp_ini=%d, state_id=%s",
+            request.llm_prompt,
+            request.enable_flexible_prompt,
             request.num_inputs,
             request.num_initial_samples,
             request.num_initial_comparisons,
             request.state_id,
         )
 
-        state = await get_state(request.state_id)
+        state: SerializedState = await get_state(request.state_id)
+        state = state.model_dump()
         bounds = state.get("bounds")
-        print(f"\n bounds = {bounds}")
 
         column_names = state.get("column_names")
 
-        bope_state = await initialize_bope(
-            dim, q_inidata, q_comp_ini, bounds, column_names
+        bope_state: BopeState = await initialize_bope(
+            dim, q_inidata, q_comp_ini, bounds, column_names, request.llm_prompt
         )
+        end_time = time.time()
+        iteration_duration = round(end_time - start_time, 5)
 
         # Update the state in MongoDB
-        await update_bope_state(request.state_id, bope_state)
+        await update_bope_state(request.state_id, bope_state, iteration_duration)
 
-        # Convert torch tensors to lists for JSON serialization
-        response_state = {
-            "iteration": bope_state["iteration"],
-            "X": bope_state["X"].tolist(),
-            "comparisons": bope_state["comparisons"].tolist(),
-            "best_val": bope_state["best_val"].tolist(),
-            "input_bounds": [b.tolist() for b in bope_state["input_bounds"]],
-            "input_columns": bope_state["input_columns"],
-        }
+        # Retrieve updated bope state and serialize
+
+        bope_state: BopeState = await retrieve_bope_state(request.state_id)
+
+        response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
+
+        summarizing_start_time = time.time()
+        brief_bope_state = brief_summary(response_bope_state.model_dump())
+        summarizing_end_time = time.time()
+        print(
+            f"\n Loggable summarizing time: {summarizing_end_time - summarizing_start_time}"
+        )
+
+        logging.info(
+            f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(brief_bope_state, indent=2)}"
+        )
 
         return JSONResponse(
             content={
                 "message": "BOPE initialized successfully",
-                "bope_state": response_state,
+                "bope_state": response_bope_state.model_dump_json(),
                 "state_id": request.state_id,
             }
         )
@@ -265,36 +278,65 @@ async def initialize_bope_endpoint(request: InitializeBOPERequest):
 @app.post("/run_next_iteration/")
 async def run_next_iteration_endpoint(request: RunNextIterationRequest):
     try:
+        logging.info(
+            "Running next BOPE iteration with llm_prompt='%s', enable_flexible_prompt=%s, state_id=%s",
+            request.llm_prompt,
+            request.enable_flexible_prompt,
+            request.state_id,
+        )
+
+        start_time = time.time()
         # Retrieve the state from MongoDB
-        bope_state = await retrieve_bope_state(request.state_id)
+        bope_state: BopeState = await retrieve_bope_state(request.state_id)
+
         if bope_state is None:
             raise HTTPException(status_code=404, detail="BOPE state not found")
 
         # Reconstruct the model
         from bope_functions import init_and_fit_model
 
-        _, bope_state["model"] = init_and_fit_model(
-            bope_state["X"], bope_state["comparisons"]
+        _, model = init_and_fit_model(bope_state.X, bope_state.comparisons)
+
+        # Determine which prompt to use based on enable_flexible_prompt
+        prompt_to_use = (
+            request.llm_prompt
+            if request.enable_flexible_prompt
+            else bope_state.llm_prompt
         )
 
-        # Run the next iteration
-        bope_state = await run_next_iteration(bope_state)
+        # Run the next iteration with the determined prompt
+        bope_state: BopeState = await run_next_iteration(
+            bope_state, model, prompt_to_use
+        )
+
+        print("next iteration run")
+        end_time = time.time()
+        iteration_duration = round(end_time - start_time, 5)
 
         # Update the state in MongoDB
-        await update_bope_state(request.state_id, bope_state)
+        await update_bope_state(request.state_id, bope_state, iteration_duration)
 
-        # Convert torch tensors to lists for JSON serialization
-        response_state = {
-            "iteration": bope_state["iteration"],
-            "X": bope_state["X"].tolist(),
-            "comparisons": bope_state["comparisons"].tolist(),
-            "best_val": bope_state["best_val"].tolist(),
-        }
+        # Retrieve updated bope state and serialize
+        bope_state: BopeState = await retrieve_bope_state(request.state_id)
+
+        response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
+
+        print("next iteration data serialized")
+        summarizing_start_time = time.time()
+        brief_bope_state = brief_summary(response_bope_state.model_dump())
+        summarizing_end_time = time.time()
+        print(
+            f"\n Loggable summarizing time: {summarizing_end_time - summarizing_start_time}"
+        )
+
+        logging.info(
+            f"State {request.state_id} \nIteration {bope_state.iteration}\ndetails: {json.dumps(brief_bope_state, indent=2)}"
+        )
 
         return JSONResponse(
             content={
                 "message": "Next iteration completed successfully",
-                "state": response_state,
+                "bope_state": response_bope_state.model_dump_json(),
                 "state_id": request.state_id,
             }
         )
@@ -308,19 +350,26 @@ async def run_next_iteration_endpoint(request: RunNextIterationRequest):
 @app.get("/get_bope_state/{state_id}")
 async def get_bope_state(state_id: str):
     try:
-        bope_state = await retrieve_bope_state(state_id)
+        logging.info(
+            "Getting BOPE State with state_id=%s",
+            state_id,
+        )
+
+        bope_state: BopeState = await retrieve_bope_state(state_id)
         if bope_state is None:
             raise HTTPException(status_code=404, detail="BOPE state not found")
 
-        # Convert torch tensors to lists for JSON serialization
-        response_state = {
-            "X": bope_state["X"].tolist(),
-            "comparisons": bope_state["comparisons"].tolist(),
-            "best_val": bope_state["best_val"].tolist(),
-            "input_bounds": [b.tolist() for b in bope_state["input_bounds"]],
-        }
+        response_bope_state: SerializedBopeState = serialize_bope_state(bope_state)
 
-        return JSONResponse(content={"bope_state": response_state})
+        logging.info(
+            f"State {state_id}\n Iteration {bope_state.iteration}\ndetails: {json.dumps(response_bope_state.model_dump_json(), indent=2)}"
+        )
+
+        return JSONResponse(
+            content={
+                "bope_state": response_bope_state.model_dump_json(),
+            }
+        )
     except Exception as e:
         logging.error(f"Error retrieving BOPE state: {e}")
         raise HTTPException(
@@ -332,3 +381,4 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True, reload_excludes=["*.log"])
+    logging.info("FastAPI App started in production mode")
