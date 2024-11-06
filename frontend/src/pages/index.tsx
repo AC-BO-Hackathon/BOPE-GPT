@@ -153,12 +153,13 @@ const Home = () => {
                     <p className="font-bold">What is the BOPE process?</p>
                     <br></br>
                     BOPE, or <a href="https://botorch.org/tutorials/bope" target="_blank" rel="noopener noreferrer" className="text-blue-500">Bayesian Optimization via Preference Exploration</a>, is a machine learning technique 
-                    for finding potential optimums of a distribution of data that uses pairwise comparisons of data points sampled from this distribution to guide this optimization process. 
+                    for finding potential optimums of an experiment (or anything that can be tabulated as a set of input features and corresponding output features really) using pairwise comparisons of data points sampled from the 
+                    distribution of potential inputs to guide this optimization process. 
                     <br></br>
                     <br></br>
-                    This is useful for situations where specific priorities of outputs- the optimization goals- cannot be defined well numerically, or changes,
-                    which is often the case in some complicated multi-objective problems. In these scenarios, a human (or human-like) evaluator can express a preference between two outputs and this preference can be used to guide the 
-                    optimization process instead.
+                    This is useful for situations where specific priorities of outputs- the optimization goals- cannot be defined well numerically,
+                    which is often the case in some complicated multi-objective problems. In these scenarios, a human (or human-like) evaluator/decision-maker can express a preference between two outputs and this preference can 
+                    be used to guide the optimization process instead.
                     <br></br>
                     <br></br>
                     This &quot;preference&quot; can also be picked through an LLM (the human-like evaluator) if correctly prompted- which is what BOPE-GPT does. 
@@ -168,18 +169,28 @@ const Home = () => {
                     to locate optimal points in the distribution by a user. 
                     <br></br>
                     <br></br>
+                    Read more about this on the paper that introduced this process: <a href="https://arxiv.org/abs/2203.11382" target="_blank" rel="noopener noeferrer" className="text-blue-500">https://arxiv.org/abs/2203.11382</a>
+                    <br></br>
+                    <br></br>
                     <br></br>
                     <p className="font-bold">Who&apos;s this for?</p>
                     <br></br>
                     This is for people who want to optimize for a multi-objective system they&apos;re trying to model and already have a distribution of input-output data 
-                    in a dataset, but don&apos;t have a good way to define the optimization goals numerically- although they can in natural language. 
+                    in a dataset, but don&apos;t have a good way to define the optimization goals numerically- although they can in natural language. In the future, support will be added
+                    for using this with live experiments, requiring new data points to be entered once prompted after the model makes a pair of suggestions in the course of each iteration. 
                     <br></br>
                     <br></br>
-                    The BOPE-GPT process is a useful interface for this kind of optimization, and has built in visualizations to help see the latent utility defined in natural language 
+                    The BOPE-GPT process is a useful interface for this kind of optimization though, and has built in visualizations to help see the latent utility defined in natural language 
                     and select potential optimums.  
                     <br></br>
                     <br></br>
-                    A chemical process with tradeoffs in outputs and for which data has already been tabulated, like the Fischer-Tropsch synthesis process, is one potential use case. 
+                    A chemical process with tradeoffs in outputs and for which data has already been tabulated, like the Fischer-Tropsch synthesis process, is one potential use case. A/B tests 
+                    are another potential use case as mentioned in the BOPE paper. 
+                    <br></br>
+                    <br></br>
+                    With an LLM and the interpolation abilities of a sufficiently trained neural network, this app automates a lot of the time consuming requirements of the BOPE process- along
+                    especially for repetitive but similar runs. Anything such task where the objectives can be defined in natural language (to be prompted to the LLM) is also useful to perform with BOPE-GPT. 
+                    <br></br>
                     <br></br>
                     <br></br>
                     <p className="font-bold">How does BOPE-GPT work?</p>
