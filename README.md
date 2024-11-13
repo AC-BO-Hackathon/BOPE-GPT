@@ -118,6 +118,46 @@ The numbers from the model output are entered to prompt as strings with one deci
 
 An app to perform preferential BO optimisation using the LLM pairwise comparison function, shown in the previous plot as EUBO-LLM, was developed by [Ratish Panda](https://github.com/imperorrp), and it's available at https://bope-gpt.vercel.app/
 
+## Frontend 
+
+The Next.js framework was used for the frontend of this app, with an instance deployed on Vercel. View the source code at `frontend/`. 
+
+To run locally, clone the `frontend/` code and make sure you have Node.js installed for a Typescript runtime to build the frontend locally. Then install the dependencies listed in `package.json` with `npm install` and run with `npm run dev` or `npm run build` to build and deploy the frontend to a local port. 
+
+## Backend
+
+The current backend computing and serving requests made from the BOPE-GPT app frontend is a FastAPI app deployed on a personal local VPS at `bopegpt.ratishpanda.me`. Requests are routed through an Nginx proxy via a local Unix socket and passed to a running Gunicorn server with 2 Uvicorn workers. This isn't a powerful VPS, so compute and processing may be slow! As an alterative, for faster processing on more powerful local machines, you can clone this repo locally and build the frontend and backend locally and run it on your data that way. You will have to procure a personal MongoDB Atlas URI key and Cohere API Key for local use however. 
+
+For more info on the structure of the backend app and running locally, navigate to `backend/fastapi_backend/readme.md` in this repository where this is detailed further!
+
+## Screenshots 
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
+![alt text](image-3.png)
+
+NOTE: Loading can take upto a few minutes, lots of compute required + the VPS used for the free live backend is a personal one and not so powerful! Keep the tab open while waiting for a response. Run locally for faster loading times if you have a powerful system.  
+
+![alt text](image-4.png)
+
+![alt text](image-5.png)
+
+![alt text](image-6.png)
+
+![alt text](image-7.png)
+
+![alt text](image-8.png)
+
+## Interactive GP Visualization and Pareto Plots
+
+![alt text](screen-capture.gif)
+
+<br>
+
 *Miscellaneous*
 
 **Environment**
