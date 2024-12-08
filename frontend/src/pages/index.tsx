@@ -13,6 +13,7 @@ import { GaussianProcessVisualization } from "@/components/dashboard/gaussian-pr
 import { ParetoFrontsVisualization } from "@/components/dashboard/pareto-fronts";
 import { PairwiseComparisonsTable } from "@/components/dashboard/pairwise-comparisons";
 import { AllDataPointsTable } from "@/components/dashboard/all-data-points";
+import { BOPEFAQAccordion } from "@/components/dashboard/about-bope-gpt";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
@@ -123,7 +124,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="about" className="space-y-4">
           <TabsList>
             <TabsTrigger value="about">
               About BOPE-GPT
@@ -142,101 +143,28 @@ const Home = () => {
                 <CardHeader>
                   <CardTitle>Welcome to BOPE-GPT</CardTitle>
                   <CardDescription>
-                    <br></br>
-                    An Interface for the BOPE process with Automated Pairwise Comparisons through an LLM. 
-                    <br></br>
-                    <br></br>
-                    (Read more about the origin of BOPE-GPT at: <a href="https://github.com/AC-BO-Hackathon/BOPE-GPT" target="_blank" rel="noopener noreferrer" className="text-blue-500">https://github.com/AC-BO-Hackathon/BOPE-GPT</a>)
-                    <br></br>
-                    <br></br>
-                    <br></br>
-                    <p className="font-bold">What is the BOPE process?</p>
-                    <br></br>
-                    BOPE, or <a href="https://botorch.org/tutorials/bope" target="_blank" rel="noopener noreferrer" className="text-blue-500">Bayesian Optimization via Preference Exploration</a>, is a machine learning technique 
-                    for finding potential optimums of an experiment (or anything that can be tabulated as a set of input features and corresponding output features really) using pairwise comparisons of data points sampled from the 
-                    distribution of potential inputs to guide this optimization process. 
-                    <br></br>
-                    <br></br>
-                    This is useful for situations where specific priorities of outputs- the optimization goals- cannot be defined well numerically,
-                    which is often the case in some complicated multi-objective problems. In these scenarios, a human (or human-like) evaluator/decision-maker can express a preference between two outputs and this preference can 
-                    be used to guide the optimization process instead.
-                    <br></br>
-                    <br></br>
-                    This &quot;preference&quot; can also be picked through an LLM (the human-like evaluator) if correctly prompted- which is what BOPE-GPT does. 
-                    <br></br>
-                    <br></br>
-                    After each iteration, the list of explored data points expands- Pareto plot and preference visualizations of the pairwiseGP model representing these can then be used 
-                    to locate optimal points in the distribution by a user. 
-                    <br></br>
-                    <br></br>
-                    Read more about this on the paper that introduced this process: <a href="https://arxiv.org/abs/2203.11382" target="_blank" rel="noopener noeferrer" className="text-blue-500">https://arxiv.org/abs/2203.11382</a>
-                    <br></br>
-                    <br></br>
-                    <br></br>
-                    <p className="font-bold">Who&apos;s this for?</p>
-                    <br></br>
-                    This is for people who want to optimize for a multi-objective system they&apos;re trying to model and already have a distribution of input-output data 
-                    in a dataset, but don&apos;t have a good way to define the optimization goals numerically- although they can in natural language. In the future, support will be added
-                    for using this with live experiments, requiring new data points to be entered once prompted after the model makes a pair of suggestions in the course of each iteration. 
-                    <br></br>
-                    <br></br>
-                    The BOPE-GPT process is a useful interface for this kind of optimization though, and has built in visualizations to help see the latent utility defined in natural language 
-                    and select potential optimums.  
-                    <br></br>
-                    <br></br>
-                    A chemical process with tradeoffs in outputs and for which data has already been tabulated, like the Fischer-Tropsch synthesis process, is one potential use case. A/B tests 
-                    are another potential use case as mentioned in the BOPE paper. 
-                    <br></br>
-                    <br></br>
-                    With an LLM and the interpolation abilities of a sufficiently trained neural network, this app automates a lot of the time consuming requirements of the BOPE process- along
-                    especially for repetitive but similar runs. Anything such task where the objectives can be defined in natural language (to be prompted to the LLM) is also useful to perform with BOPE-GPT. 
-                    <br></br>
-                    <br></br>
-                    <br></br>
-                    <p className="font-bold">How does BOPE-GPT work?</p>
-                    <br></br>
-                    <ul className="list-disc pl-6 space-y-2">
-                      <li>BOPE-GPT first awaits an upload of an initial CSV dataset- tabular, with columns representing features and rows representing individual data points</li>
-                      <li>To initialize the BOPE Process, the Initialization Panel must be filled out: an LLM prompt, the number of dataset columns to use as inputs (outputs defined by elimination), the number of initial data points to sample from the dataset distribution and the number of initial pairwise comparisons to make</li>
-                      <li>A neural network to internally represent the distribution of the uploaded dataset is created, mapping inputs to outputs. This is necessary to interpolate between dataset values when necessary</li>
-                      <li>The BOPE process begins, iteratively sampling new data points from the distribution and comparing them. A PairwiseGP model is used to model data preference.</li>
-                      <li>An LLM is used to automate the pairwise comparisons between data points</li>
-                      <li>Visualizations of the current state of the BOPE process are updated as it runs- the PairwiseGP model and the Pareto Fronts of the data points explored so far.</li>
-                      <li>Overviews, visualizations and data and comparisons made so far can be viewed via the other tabs on this dashboard after each iteration</li>
-                      <li>Each iteration improves the PairwiseGP model and likelihood of finding more optimal data points</li>
-                    </ul>
-                    <br></br>
-                    <br></br>
-                    <p className="font-bold">Example BOPE-GPT Initialization Panel Values:</p>
-                    <br></br>
-                    <div className="pl-4">
-                    <p className="font-semibold">LLM Prompt:</p>
-                    To maximize all outputs, something like this could be used: <p className="">
-                      &quot;Suppose you&apos;re managing a Fischer-Tropsch synthesis process. The four outputs are equally important, and we want to maximize all of them&quot;
-                    </p>
-                    <br></br>
-                    <p className="font-semibold">Number of Input Features:</p>
-                    <p className="">
-                      4 (the first four columns of the uploaded dataset)
-                    </p>
-                    <br></br>
-                    <p className="font-semibold">Number of Initial Data Points:</p>
-                    <p className="">
-                      4 (4 random data points to be sampled from the dataset distribution- through the neural network representing it)
-                    </p>
-                    <br></br>
-                    <p className="font-semibold">Number of Initial Comparisons:</p>
-                    <p className="">
-                      6 (6 pairwise comparisons to be made between the initial data points to gauge relative preference)
-                    </p>
-
+                    <div>
+                      <br />
+                        An web app and interface for the BOPE process with Automated Pairwise Comparisons through an LLM.
+                        <div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-md">
+                          <ul className="list-disc pl-6">
+                              <li>
+                              Read more about the origin of BOPE-GPT at: <a href="https://github.com/AC-BO-Hackathon/BOPE-GPT" target="_blank" rel="noopener noreferrer" className="text-blue-500">https://github.com/AC-BO-Hackathon/BOPE-GPT</a>
+                              </li>
+                              <li>
+                              Read more about this on the paper that introduced this process: <a href="https://arxiv.org/abs/2203.11382" target="_blank" rel="noopener noeferrer" className="text-blue-500">https://arxiv.org/abs/2203.11382</a> and view the corresponding code on the Meta Research repository: <a href="https://github.com/facebookresearch/preference-exploration" target="_blank" rel="noopener noreferrer" className="text-blue-500">https://github.com/facebookresearch/preference-exploration</a>
+                              </li>
+                          </ul>
+                        </div>
+                        <div className="mt-4 p-4 bg-yellow-50 border border-blue-300 rounded-md">
+                            <span className= "font-bold">NOTE: </span>
+                            Loading times per iteration on this live web version of BOPE-GPT can go upto a few minutes- clone the repo and follow mentioned instructions to run locally for faster speeds. Also, make sure not to accidentally close this tab in middle of an iteration run or progress could be lost!
+                        </div>
                     </div>
-                    <br></br>
-                    <br></br>
-                    <br></br>
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2 flex flex-col">
+                  <BOPEFAQAccordion />
                 </CardContent>
               </Card>
             </div>
